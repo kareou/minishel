@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/10 10:46:32 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/04/20 23:41:47 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/04/24 14:40:57 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,6 @@ void transfer_args(t_lexer *lexer, t_mshel *shel, int j, int k, int flag)
 					shel->cmd[k]->redirect.in = 1;
 					shel->cmd[k]->redirect.input[r] = ft_strdup(lexer->str[start]);
 					shel->cmd[k]->redirect.in_file[r] = ft_strdup(lexer->str[start + 1]);
-					printf("%s->%d->%d\n",shel->cmd[k]->redirect.in_file[r], k, r);
 					r++;
 					start += 2;
 				}
@@ -86,14 +85,17 @@ void transfer_args(t_lexer *lexer, t_mshel *shel, int j, int k, int flag)
 			{
 				if (lexer->str[start])
 				{
-					if(strcmp(lexer->str[start], "<<") && strcmp(lexer->str[start - 1], lexer->str[find_cmd(lexer->str)]))
+					if(strcmp(lexer->str[start], "<<") && \
+					start > 0 && shel->cmd[k]->redirect.heredoc.heredoc_number > 0)
 					{
-						printf("%s\n",lexer->str[start]);
 						shel->cmd[k]->redirect.heredoc.delemiter[shel->cmd[k]->redirect.heredoc.heredoc_number - 1] = \
 						ft_strdup(lexer->str[start]);
 					}
-					shel->cmd[k]->args[i] = ft_strdup(lexer->str[start]);
-					i++;
+					else
+					{
+						shel->cmd[k]->args[i] = ft_strdup(lexer->str[start]);
+						i++;
+					}
 					start++;
 				}
 			}

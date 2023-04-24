@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/27 22:48:51 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/04/19 18:22:51 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/04/24 15:16:36 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@ int	check_redirect_place(int in, int out)
 
 int redirect_to_pipe(t_mshel *shel , int (*pipe)[2], int i, int red_status, int status)
 {
+	shel->cmd[i]->redirect.old_input = dup(STDIN_FILENO);
+	shel->cmd[i]->redirect.old_output = dup(STDOUT_FILENO);
 	if (i == 0)
 	{
 		if(red_status == 2)
@@ -110,13 +112,19 @@ void pipe_and_start(t_mshel *mshel)
 	i = 0;
 	while (i < mshel->cmd_number)
 	{
-		id = fork();
-		if (id == -1)
-			printf("minishell : %s\n", strerror(errno));
-		if (id == 0)
+		if((!strcmp(mshel->cmd[i]->cmd, "cd") || !strcmp(mshel->cmd[i]->cmd, "export")) && i == 0)
 			execute_cmd(mshel, pipes, i, 1);
 		else
-			pid[i] = id;
+		{
+			printf("here\n");
+			id = fork();
+			if (id == -1)
+				printf("minishell : %s\n", strerror(errno));
+			if (id == 0)
+				execute_cmd(mshel, pipes, i, 1);
+			else
+				pid[i] = id;
+		}
 		i++;
 	}
 	close_all_pipes(pipes, mshel->cmd_number);

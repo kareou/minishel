@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 11:22:57 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/04/20 21:17:16 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/04/24 15:52:04 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,13 +36,14 @@ char *join_arrays(t_mshel *shel, int index, char *cmd)
 void	run_cmd(t_mshel *shel , int cmd_index, char *cmd)
 {
 	int	tmp;
-
 	if (!strncmp(cmd, "echo", strlen(cmd)) || !ft_strncmp(cmd, "/bin/echo", ft_strlen(cmd)))
 		ech_o(shel, cmd_index);
 	else if (!strncmp(cmd, "pwd", strlen(cmd)) || !ft_strncmp(cmd, "/bin/pwd", ft_strlen(cmd)))
 		p_w_d();
 	else if (!strncmp(cmd, "cd", strlen(cmd)) || !ft_strncmp(cmd, "/usr/bin/cd", ft_strlen(cmd)))
+	{
 		c_d(shel, shel->cmd[cmd_index]->args[0]);
+	}
 	else if (!strncmp(cmd, "exit", strlen(cmd)))
 		exit(0);
 	else if (!ft_strncmp(cmd, "export", strlen(cmd)))
@@ -103,7 +104,13 @@ void execute_cmd(t_mshel *shel, int (*pipe)[2], int cmd_index, int status)
 		else
 			ft_heredoc(cmd, shel->cmd[cmd_index]->args[0],cmd_index, shel);
 	}
-
+	if(shel->cmd_number > 1)
+	{
+		if((cmd_index + 1 == shel->cmd_number) && !strcmp(cmd, "cd"))
+			exit(0);
+		if(strcmp(cmd, "cd"))
+			exit(0);
+	}
 	if (shel->cmd[cmd_index]->redirect.old_output != 0)
 		dup2(shel->cmd[cmd_index]->redirect.old_output, STDOUT_FILENO);
 	if (shel->cmd[cmd_index]->redirect.old_input != 0)
