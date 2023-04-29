@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/27 22:48:51 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/04/24 15:16:36 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/04/29 10:36:23 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,6 @@ int redirect_to_pipe(t_mshel *shel , int (*pipe)[2], int i, int red_status, int 
 					perror("minishell :");
 			}
 		}
-
 	}
 	return (1);
 }
@@ -98,11 +97,13 @@ void close_all_pipes(int (*pipe)[2], int cmd_numbers)
 void pipe_and_start(t_mshel *mshel)
 {
 	int i;
+	int	status;
 	int id;
 	int	pid[mshel->cmd_number];
 	int pipes[mshel->cmd_number][2];
 
 	i = 0;
+	status = 0;
 	while (i < mshel->cmd_number - 1)
 	{
 		if (pipe(pipes[i]) == -1)
@@ -112,27 +113,21 @@ void pipe_and_start(t_mshel *mshel)
 	i = 0;
 	while (i < mshel->cmd_number)
 	{
-		if((!strcmp(mshel->cmd[i]->cmd, "cd") || !strcmp(mshel->cmd[i]->cmd, "export")) && i == 0)
+		id = fork();
+		if (id == -1)
+			printf("minishell : %s\n", strerror(errno));
+		if (id == 0)
 			execute_cmd(mshel, pipes, i, 1);
 		else
-		{
-			printf("here\n");
-			id = fork();
-			if (id == -1)
-				printf("minishell : %s\n", strerror(errno));
-			if (id == 0)
-				execute_cmd(mshel, pipes, i, 1);
-			else
-				pid[i] = id;
-		}
+			pid[i] = id;
 		i++;
 	}
 	close_all_pipes(pipes, mshel->cmd_number);
 	i = 0;
 	while (i < mshel->cmd_number)
 	{
-		waitpid(pid[i], &mshel->exit_status, 0);
+		waitpid(pid[i], &status, 0);
 		i++;
 	}
-
+	mshel->exit_status = WEXITSTATUS(status);
 }

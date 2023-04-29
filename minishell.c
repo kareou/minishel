@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 11:28:46 by asekkak           #+#    #+#             */
-/*   Updated: 2023/04/17 19:55:05 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/04/29 14:12:15 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,11 +108,12 @@ void minishell(char **env)
     signal(SIGINT,sigint_handler_c);
 	shel = malloc(sizeof(t_mshel));
 	dup_env(shel, env);
+	shel->exit_status = 0;
   	while (1)
 	{
 		input = readline("minishell> ");
-		if (input == NULL) {
-
+		if (input == NULL)
+		{
              printf("exit\n");
              break;
         }
@@ -122,8 +123,7 @@ void minishell(char **env)
         // }
  		add_history(input);
 		lexer(input, shel);
-		free(input);
-
+		// free(input);
  	}
 }
 

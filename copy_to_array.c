@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/10 10:46:32 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/04/24 14:40:57 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/04/29 11:33:01 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ void transfer_args(t_lexer *lexer, t_mshel *shel, int j, int k, int flag)
 					r++;
 					start += 2;
 				}
-				if(!strcmp(lexer->str[start], "<<"))
+				if (lexer->str[start] && !strcmp(lexer->str[start], "<<"))
 				{
 					shel->cmd[k]->redirect.heredoc.heredoc_number++;
 					start++;
@@ -203,7 +203,9 @@ void transfer_to_array(t_lexer *lexer, int size_arrays, t_mshel *mshel)
 	}
 	transfer_cmd(lexer, mshel);
 	if (mshel->cmd_number == 1)
+	{
 		execute_cmd(mshel, pipe, 0, 0);
+	}
 	else
 		pipe_and_start(mshel);
 }

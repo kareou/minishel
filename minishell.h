@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 11:29:14 by asekkak           #+#    #+#             */
-/*   Updated: 2023/04/19 23:45:00 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/04/29 15:18:33 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,7 @@ void	execute_cmd(t_mshel *shel, int (*pipe)[2], int cmd_index, int status);
 void	ech_o(t_mshel *shel, int i);
 void    execute_shell(char *cmd, t_mshel *shel);
 void	p_w_d(void);
-void	c_d(t_mshel *shel, char *a);
+int		c_d(t_mshel *shel, char *a);
 void	print_env(t_mshel *shel, int stat);
 char	*ft_getenv(t_mshel *mshel, char *a);
 void	ft_export(t_mshel *shel, int cmd_index);
@@ -128,7 +128,11 @@ void	run_cmd(t_mshel *shel , int cmd_index, char *cmd);
 int		redirect_input(t_mshel *mshel, int cmd_index, int status);
 int		redirect_output(t_mshel *mshel, int cmd_index);
 int		check_redirect_place(int in, int out);
-void	ft_heredoc(char *cmd , char *dilemter, int cmd_index, t_mshel *shel);
+void	ft_heredoc(int cmd_index, t_mshel *shel);
 //****************************
 
+
+//********utils***************
+void	print_errors(char *a);
+//****************************
 #endif

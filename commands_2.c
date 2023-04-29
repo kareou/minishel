@@ -6,39 +6,40 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/19 10:56:24 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/04/19 20:01:23 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/04/27 15:30:19 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void string_to_print(char *a)
+void string_to_print(char *a, t_mshel *shel)
 {
 	int i;
 	char *tmp;
 	int j;
 
 	i = -1;
-	// if (shel->singl_c == 1)
-	// {
-	//     while (a[++i])
-	//         printf("%c", a[i]);
-	// }
-	// else
-	// {
-		while (a[++i])
+	while (a[++i])
+	{
+		if (a[i] == 36)
 		{
-			if (a[i] == 36)
+			if (a[i + 1] == '?')
+			{
+				tmp = ft_itoa(shel->exit_status);
+				++i;
+			}
+			else
 			{
 				j = i;
 				while (a[++i] != ' ' && a[++i]);
 				tmp = getenv(ft_substr(a, j+1, i));
-				if(tmp)
-					printf("%s", tmp);
 			}
-			printf("%c", a[i]);
+			if(tmp)
+				printf("%s", tmp);
 		}
-	// }
+		else
+			printf("%c", a[i]);
+	}
 }
 
 void    ech_o(t_mshel *shel, int i)
@@ -50,8 +51,10 @@ void    ech_o(t_mshel *shel, int i)
 	{
 		if(shel->cmd[i]->flags == 1)
 			j++;
-		string_to_print(shel->cmd[i]->args[j]);
+		string_to_print(shel->cmd[i]->args[j], shel);
 		j++;
+		if(shel->cmd[i]->args[j])
+			printf(" ");
 	}
 	if(shel->cmd[i]->flags != 1)
 		printf("\n");

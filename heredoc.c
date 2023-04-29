@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/19 01:25:51 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/04/24 13:33:41 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/04/29 15:33:55 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ void	open_n_close_p(int (*pipes)[2], int cs, int p_number)
 }
 void	printf_in_pipe(char *a, int fd)
 {
-	int i;
+	int		i;
 
 	i = 0;
 	while (a[i])
@@ -49,24 +49,28 @@ void	printf_in_pipe(char *a, int fd)
 	write(fd,"\n",1);
 }
 
-void	ft_heredoc(char *cmd , char *dilemter, int cmd_index, t_mshel *shel)
+void	ft_heredoc(int cmd_index, t_mshel *shel)
 {
 	int	h_number = shel->cmd[cmd_index]->redirect.heredoc.heredoc_number;
 	int	du;
+	int	duin;
 	int pipes[h_number][2];
 	int	i = 0;
 	int	tmp_fd;
-	int	id;
+	int	redirection;
 	char *a;
 
 	open_n_close_p(pipes, 0, h_number);
-	(void)dilemter;
-	(void)cmd;
-	if(shel->cmd_number > 1)
+	redirection = check_redirect_place(shel->cmd[cmd_index]->redirect.in, shel->cmd[cmd_index]->redirect.out);
+	if(shel->cmd_number > 1 || redirection)
 	{
+		if (redirection == 2 || redirection == 1)
+		{
+			duin = dup(STDIN_FILENO);
+			dup2(shel->cmd[cmd_index]->redirect.old_input, STDIN_FILENO);
+		}
 		du = dup(STDOUT_FILENO);
 		dup2(shel->cmd[cmd_index]->redirect.old_output, STDOUT_FILENO);
-		close(shel->cmd[cmd_index]->redirect.old_output);
 	}
 	while (1)
 	{
@@ -82,35 +86,33 @@ void	ft_heredoc(char *cmd , char *dilemter, int cmd_index, t_mshel *shel)
 			break;
 		}
 		if(a)
-			printf_in_pipe(a,pipes[i][1]);
+		{
+			if (a[0] == '$')
+				printf_in_pipe(ft_getenv(shel, a + 1),pipes[i][1]);
+			else
+				printf_in_pipe(a,pipes[i][1]);
+		}
 		free(a);
 	}
-	if (shel->cmd_number > 1)
+	if (shel->cmd_number > 1 || redirection)
 	{
+		if (redirection == 2 || redirection == 1)
+		{
+			dup2(duin, STDIN_FILENO);
+			close(duin);
+		}
 		dup2(du, STDOUT_FILENO);
 		close(du);
 	}
-
-	tmp_fd = dup(STDIN_FILENO);
-	if (dup2(pipes[i - 1][0], STDIN_FILENO) == -1)
-				perror("minishell :");
+	if (redirection != 2 && redirection != 1)
+	{
+		tmp_fd = dup(STDIN_FILENO);
+		if (dup2(pipes[i - 1][0], STDIN_FILENO) == -1)
+				perror("minisdhell :");
+	}
 	open_n_close_p(pipes, 1, h_number);
-	if(shel->cmd_number >= 1)
-	{
-		id = fork();
-		if ( id == 0)
-		{
-			if(shel->cmd[cmd_index]->redirect.heredoc.cmd[0])
-				execute_shell(shel->cmd[cmd_index]->redirect.heredoc.cmd, shel);
-		}
-		else
-			wait(NULL);
-	}
-	else
-	{
-		if(shel->cmd[cmd_index]->redirect.heredoc.cmd[0])
-				execute_shell(shel->cmd[cmd_index]->redirect.heredoc.cmd, shel);
-	}
-	dup2(tmp_fd, STDIN_FILENO);
+	run_cmd(shel, cmd_index, shel->cmd[cmd_index]->cmd);
+	if (shel->cmd[cmd_index]->redirect.old_input != 0 && (redirection != 2 || redirection != 1))
+		dup2(tmp_fd, STDIN_FILENO);
 }
 
