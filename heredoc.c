@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/19 01:25:51 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/04/29 15:33:55 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/02 11:18:39 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ void	ft_heredoc(int cmd_index, t_mshel *shel)
 
 	open_n_close_p(pipes, 0, h_number);
 	redirection = check_redirect_place(shel->cmd[cmd_index]->redirect.in, shel->cmd[cmd_index]->redirect.out);
-	if(shel->cmd_number > 1 || redirection)
+	if(shel->cmd_number > 1 || (redirection && shel->cmd[cmd_index]->error == -1))
 	{
 		if (redirection == 2 || redirection == 1)
 		{
@@ -94,7 +94,7 @@ void	ft_heredoc(int cmd_index, t_mshel *shel)
 		}
 		free(a);
 	}
-	if (shel->cmd_number > 1 || redirection)
+	if(shel->cmd_number > 1 || (redirection && shel->cmd[cmd_index]->error == -1))
 	{
 		if (redirection == 2 || redirection == 1)
 		{
@@ -104,15 +104,16 @@ void	ft_heredoc(int cmd_index, t_mshel *shel)
 		dup2(du, STDOUT_FILENO);
 		close(du);
 	}
-	if (redirection != 2 && redirection != 1)
+	if (redirection != 2 && redirection != 1 && shel->cmd[cmd_index]->error == -1)
 	{
 		tmp_fd = dup(STDIN_FILENO);
 		if (dup2(pipes[i - 1][0], STDIN_FILENO) == -1)
 				perror("minisdhell :");
 	}
 	open_n_close_p(pipes, 1, h_number);
-	run_cmd(shel, cmd_index, shel->cmd[cmd_index]->cmd);
-	if (shel->cmd[cmd_index]->redirect.old_input != 0 && (redirection != 2 || redirection != 1))
+	if(shel->cmd[cmd_index]->cmd && shel->cmd[cmd_index]->cmd[0] && shel->cmd[cmd_index]->error == -1)
+		run_cmd(shel, cmd_index, shel->cmd[cmd_index]->cmd);
+	if (shel->cmd[cmd_index]->redirect.old_input != 0 && (redirection != 2 || redirection != 1) && shel->cmd[cmd_index]->error == -1)
 		dup2(tmp_fd, STDIN_FILENO);
 }
 

@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 11:29:14 by asekkak           #+#    #+#             */
-/*   Updated: 2023/04/29 15:18:33 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/01 16:28:46 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include<sys/types.h>
-#include<sys/stat.h>
+#include <sys/stat.h>
 #include <fcntl.h>
 #include <string.h>
 #include <signal.h>
@@ -55,6 +55,7 @@ typedef	struct s_cmd
 	int		flags;
 	char	**args;
 	t_redr	redirect;
+	int		error;
 } t_cmd;
 
 typedef struct s_mshel
@@ -113,7 +114,7 @@ int 	redirect_to_pipe(t_mshel *shel , int (*pipe)[2], int i, int red_status, int
 //*********execution**********
 void	execute_cmd(t_mshel *shel, int (*pipe)[2], int cmd_index, int status);
 void	ech_o(t_mshel *shel, int i);
-void    execute_shell(char *cmd, t_mshel *shel);
+void    execute_shell(char **cmd, t_mshel *shel);
 void	p_w_d(void);
 int		c_d(t_mshel *shel, char *a);
 void	print_env(t_mshel *shel, int stat);
@@ -135,4 +136,11 @@ void	ft_heredoc(int cmd_index, t_mshel *shel);
 //********utils***************
 void	print_errors(char *a);
 //****************************
+
+
+
+
+
+long	checking_overwrite(t_mshel *shel,int cmd_index);
+
 #endif

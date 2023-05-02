@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/16 12:31:38 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/04/28 15:31:30 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/01 16:45:39 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,24 +79,21 @@ char    *join_cnp(char *a, char *b)
 	return(ret);
 }
 
-void    execute_shell(char *cmd, t_mshel *shel)
+void    execute_shell(char **cmd, t_mshel *shel)
 {
 	char *path;
 	char **tmp_path;
 	char *p;
-	char **arg;
 	int i;
 
 	i = 0;
 	path = ft_getenv(shel, "PATH");
-	arg = mini_split(cmd);
-
 	if(path)
 	{
 		tmp_path = ft_split(path, 58);
-		if (arg[0][0] == '/' || (arg[0][0] == '.' && arg[0][1] == '/'))
+		if (cmd[0][0] == '/' || (cmd[0][0] == '.' && cmd[0][1] == '/'))
 		{
-			if(execve(arg[0],arg,NULL) == -1)
+			if(execve(cmd[0],cmd,NULL) == -1)
 			{
 				print_errors(ft_strjoin("minishell :", strerror(errno)));
 				exit(126);
@@ -104,16 +101,16 @@ void    execute_shell(char *cmd, t_mshel *shel)
 		}
 		while(tmp_path[i])
 		{
-			p = join_cnp(tmp_path[i], arg[0]);
+			p = join_cnp(tmp_path[i], cmd[0]);
 			if(!access(p, F_OK))
-				execve(p,arg,NULL);
+				execve(p,cmd,NULL);
 			free(p);
 			i++;
 		}
 	}
 	if(path)
-		print_errors(ft_strjoin("minishell : command not found : ", arg[0]));
+		print_errors(ft_strjoin("minishell : command not found : ", cmd[0]));
 	else
-		print_errors(ft_strjoin("minishell : No such file or directory : ", arg[0]));
+		print_errors(ft_strjoin("minishell : No such file or directory : ", cmd[0]));
 	exit(127);
 }

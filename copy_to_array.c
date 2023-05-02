@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/10 10:46:32 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/04/29 11:33:01 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/02 11:15:59 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,8 +85,8 @@ void transfer_args(t_lexer *lexer, t_mshel *shel, int j, int k, int flag)
 			{
 				if (lexer->str[start])
 				{
-					if(strcmp(lexer->str[start], "<<") && \
-					start > 0 && shel->cmd[k]->redirect.heredoc.heredoc_number > 0)
+					if(strcmp(lexer->str[start], "<<") && start > 0 && \
+					 shel->cmd[k]->redirect.heredoc.heredoc_number > 0 && !strcmp(lexer->str[start - 1], "<<"))
 					{
 						shel->cmd[k]->redirect.heredoc.delemiter[shel->cmd[k]->redirect.heredoc.heredoc_number - 1] = \
 						ft_strdup(lexer->str[start]);
@@ -116,7 +116,6 @@ void transfer_cmd(t_lexer *lexer, t_mshel *shel)
 	int i;
 	int j;
 	int	cmd_position;
-	// char *tmp;
 
 	i = 0;
 	t_lexer *head = lexer;
@@ -151,7 +150,7 @@ void transfer_cmd(t_lexer *lexer, t_mshel *shel)
 		{
 			if(shel->cmd[i]->cmd)
 				shel->cmd[i]->redirect.heredoc.cmd = ft_strdup(shel->cmd[i]->cmd);
-			if(strcmp(head->str[cmd_position + 1], "<<"))
+			if(head->str[cmd_position + 1] && strcmp(head->str[cmd_position + 1], "<<"))
 				shel->cmd[i]->redirect.heredoc.cmd = ft_strjoin(shel->cmd[i]->redirect.heredoc.cmd,\
 				 ft_strjoin(" ", head->str[cmd_position + 1]));
 		}
@@ -197,15 +196,14 @@ void transfer_to_array(t_lexer *lexer, int size_arrays, t_mshel *mshel)
 	{
 		mshel->cmd[i] = malloc(sizeof(t_cmd));
 		mshel->cmd[i]->args = malloc(sizeof(char *) * 101);
+		mshel->cmd[i]->error = -1;
 		mshel->cmd[i]->redirect.old_output = 0;
 		mshel->cmd[i]->redirect.old_input = 0;
 		i++;
 	}
 	transfer_cmd(lexer, mshel);
 	if (mshel->cmd_number == 1)
-	{
 		execute_cmd(mshel, pipe, 0, 0);
-	}
 	else
 		pipe_and_start(mshel);
 }

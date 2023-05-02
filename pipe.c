@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/27 22:48:51 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/04/29 10:36:23 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/02 13:30:30 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,31 +50,50 @@ int redirect_to_pipe(t_mshel *shel , int (*pipe)[2], int i, int red_status, int 
 	{
 		if (i + 1 < shel->cmd_number)
 		{
-			if(check_redirect_place(shel->cmd[i - 1]->redirect.in,shel->cmd[i - 1]->redirect.out) == 3)
-				redirect_input(shel,i - 1, 1);
+			// if(check_redirect_place(shel->cmd[i - 1]->redirect.in,shel->cmd[i - 1]->redirect.out) == 3)
+			// 	redirect_input(shel,i - 1, 1);
+			if(red_status == 2)
+			{
+				if(!redirect_input(shel,i, 0))
+					return (0);
+			}
 			if(red_status != 2)
 			{
 				if (dup2(pipe[i - 1][0], STDIN_FILENO) == -1)
 					perror("minishell :");
 			}
 			if(red_status == 3)
+			{
+				if(checking_overwrite(shel, i) < 0)
+					return (0);
 				redirect_output(shel,i);
+			}
 			if (red_status != 3)
 			{
 				if (dup2(pipe[i][1], STDOUT_FILENO) == -1)
 					perror("minishell :");
 			}
+			// }
 		}
 		else
 		{
-			if(check_redirect_place(shel->cmd[i - 1]->redirect.in,shel->cmd[i - 1]->redirect.out) == 3)
-				redirect_input(shel,i - 1, 1);
-			if(red_status == 3)
-				redirect_output(shel,i);
-			if(check_redirect_place(shel->cmd[i - 1]->redirect.in,shel->cmd[i - 1]->redirect.out) != 3)
+			// if(check_redirect_place(shel->cmd[i - 1]->redirect.in,shel->cmd[i - 1]->redirect.out) == 3)
+			// 	redirect_input(shel,i - 1, 1);
+			if(red_status == 2)
+			{
+				if(!redirect_input(shel,i, 0))
+					return (0);
+			}
+			if(red_status != 2)
 			{
 				if (dup2(pipe[i - 1][0], STDIN_FILENO) == -1)
 					perror("minishell :");
+			}
+			if(red_status == 3)
+			{
+				if(checking_overwrite(shel, i) < 0)
+					return (0);
+				redirect_output(shel,i);
 			}
 		}
 	}

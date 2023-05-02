@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/12 18:48:02 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/04/29 10:22:33 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/01 16:53:55 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,14 +23,14 @@ void	redirect_to_last_output(t_mshel *mshel, int cmd_index)
 		fd = open(mshel->cmd[cmd_index]->redirect.out_file[i], O_RDONLY);
 		if(fd == -1)
 		{
-			perror("minisell :");
+			perror("minishell ");
 			exit(1);
 		}
 		if (!mshel->cmd[cmd_index]->redirect.output[i + 1])
 		{
 			mshel->cmd[cmd_index]->redirect.old_input = dup(STDIN_FILENO);
 			if (dup2(fd,STDIN_FILENO) == 1)
-				perror("minishell :");
+				perror("minishell ");
 		}
 		close(fd);
 		i++;
@@ -52,13 +52,13 @@ int	redirect_input(t_mshel *mshel, int cmd_index, int status)
 			fd = open(mshel->cmd[cmd_index]->redirect.in_file[i], O_RDONLY);
 			if(fd == -1)
 			{
-				perror("minisell :");
-				exit(1);
+				mshel->cmd[cmd_index]->error = errno;
+				return (0);
 			}
 			if (!mshel->cmd[cmd_index]->redirect.input[i + 1])
 			{
 				if (dup2(fd,STDIN_FILENO) == 1)
-					perror("minishell :");
+					perror("minishell ");
 			}
 			close(fd);
 			i++;
@@ -80,7 +80,7 @@ int	redirect_output(t_mshel *mshel, int cmd_index)
 			tmp_fd = open(mshel->cmd[cmd_index]->redirect.out_file[i], O_RDWR | O_CREAT | O_APPEND, 0644);
 			if(tmp_fd == -1)
 			{
-				perror("minishell :");
+				perror("minishell ");
 				return(0);
 			}
 		}
@@ -89,14 +89,14 @@ int	redirect_output(t_mshel *mshel, int cmd_index)
 			tmp_fd = open(mshel->cmd[cmd_index]->redirect.out_file[i], O_RDWR  | O_CREAT | O_TRUNC, 0644);
 			if(tmp_fd == -1)
 			{
-				perror("minishell :");
+				perror("minishell ");
 					return(0);
 			}
 		}
 		if (!mshel->cmd[cmd_index]->redirect.output[i + 1])
 		{
 			if (dup2(tmp_fd,STDOUT_FILENO) == -1)
-				perror("minishell :");
+				perror("minishell ");
 		}
 		close(tmp_fd);
 		i++;
