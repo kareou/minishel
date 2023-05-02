@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/31 12:09:44 by asekkak           #+#    #+#             */
-/*   Updated: 2023/04/29 10:26:26 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/02 16:41:18 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -171,6 +171,55 @@ int check_redirection(t_lexer *lexer)
 	return (1);
 }
 
+int	find_dollar(char *a)
+{
+	int	i;
+
+	i = 0;
+	while (a[i])
+	{
+		if(a[i] == '$')
+			return(i);
+		i++;
+	}
+	return(-1);
+}
+
+void	check_expanding(t_lexer *lst, t_mshel *shel)
+{
+	int		i;
+	int		dollar_index;
+	char	**tmp;
+
+	i = 0;
+	while (lst->str[i])
+	{
+		if(ft_strchr(lst->str[i],'$'))
+		{
+			dollar_index = find_dollar(lst->str[i]);
+			tmp = ft_split(lst->str[i],'$');
+			if(dollar_index == 0)
+			{
+				free(lst->str[i]);
+				if(ft_isdigit(tmp[0][0]))
+					lst->str[i] = ft_strdup(tmp[0] + 1);
+				else
+					lst->str[i] = ft_strdup(ft_getenv(shel, tmp[0]));
+			}
+			else
+			{
+				free(lst->str[i]);
+				lst->str[i] = ft_strdup(tmp[0]);
+				if(ft_isdigit(tmp[1][0]))
+					lst->str[i] = ft_strjoin(lst->str[i],tmp[1] + 1);
+				else
+					lst->str[i] = ft_strjoin(lst->str[i], ft_getenv(shel, tmp[1]));
+			}
+		}
+		i++;
+	}
+}
+
 void parser(t_lexer *lst, t_mshel *shel)
 {
 
@@ -186,6 +235,7 @@ void parser(t_lexer *lst, t_mshel *shel)
 		check_pipe(head);
 		check_dollar(head);
 		check_redirection(head);
+		check_expanding(head, shel);
 		head = head->next;
 		i++;
 	}

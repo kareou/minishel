@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 11:22:57 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/02 11:49:22 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/02 16:45:43 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ void	run_cmd(t_mshel *shel , int cmd_index, char *cmd)
 	else if (!ft_strncmp(cmd, "export", strlen(cmd)))
 		ft_export(shel, cmd_index);
 	else if (!strncmp(cmd, "unset", strlen(cmd)))
-		ft_unset(shel, shel->cmd[cmd_index]->args[0]);
+		ft_unset(shel,  cmd_index);
 	else if (!strncmp(cmd, "env", strlen(cmd)) || !ft_strncmp(cmd, "/usr/bin/env", ft_strlen(cmd)))
 		print_env(shel, 0);
 	else
@@ -80,14 +80,14 @@ void execute_cmd(t_mshel *shel, int (*pipe)[2], int cmd_index, int status)
 	char *cmd;
 	int red_status;
 
-	if (shel->cmd[cmd_index]->cmd[0] == '$' && shel->cmd[cmd_index]->cmd)
-	{
-		if(shel->cmd[cmd_index]->cmd[1] == '?')
-			cmd  = ft_itoa(shel->exit_status);
-		else
-			cmd = ft_getenv(shel, shel->cmd[cmd_index]->cmd + 1);
-	}
-	else if (shel->cmd[cmd_index]->cmd)
+	// if (shel->cmd[cmd_index]->cmd[0] == '$' && shel->cmd[cmd_index]->cmd)
+	// {
+	// 	if(shel->cmd[cmd_index]->cmd[1] == '?')
+	// 		cmd  = ft_itoa(shel->exit_status);
+	// 	else
+	// 		cmd = ft_getenv(shel, shel->cmd[cmd_index]->cmd + 1);
+	// }
+	// else if (shel->cmd[cmd_index]->cmd)
 		cmd = shel->cmd[cmd_index]->cmd;
 	red_status = check_redirect_place(shel->cmd[cmd_index]->redirect.in, shel->cmd[cmd_index]->redirect.out);
 	if (!redirect_to_pipe(shel, pipe, cmd_index, red_status, status))

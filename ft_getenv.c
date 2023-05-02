@@ -6,13 +6,13 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/13 18:29:39 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/04/15 18:28:24 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/02 16:45:39 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	ft_unset(t_mshel *shel, char *variable)
+void	ft_unset_utils(t_mshel *shel, char *variable)
 {
 	int		i;
 	int		j;
@@ -57,6 +57,18 @@ void	ft_unset(t_mshel *shel, char *variable)
 	new_x_env[j] = NULL;
 	shel->env = new_env;
 	shel->x_env = new_x_env;
+}
+
+void	ft_unset(t_mshel *shel, int cmd_index)
+{
+	int	i;
+
+	i = 0;
+	while (shel->cmd[cmd_index]->args[i])
+	{
+		ft_unset_utils(shel, shel->cmd[cmd_index]->args[i]);
+		i++;
+	}
 }
 
 char	*ft_getenv(t_mshel *mshel, char *a)
