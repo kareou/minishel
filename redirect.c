@@ -6,64 +6,50 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/12 18:48:02 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/01 16:53:55 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/05 22:15:52 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	redirect_to_last_output(t_mshel *mshel, int cmd_index)
+void	error_to_print(int error, char *file)
 {
-	int	i;
-	int	fd;
-
-	i = 0;
-	while (mshel->cmd[cmd_index]->redirect.output[i])
-	{
-		fd = open(mshel->cmd[cmd_index]->redirect.out_file[i], O_RDONLY);
-		if(fd == -1)
-		{
-			perror("minishell ");
-			exit(1);
-		}
-		if (!mshel->cmd[cmd_index]->redirect.output[i + 1])
-		{
-			mshel->cmd[cmd_index]->redirect.old_input = dup(STDIN_FILENO);
-			if (dup2(fd,STDIN_FILENO) == 1)
-				perror("minishell ");
-		}
-		close(fd);
-		i++;
-	}
+	char *msg;
+	if(error == 13)
+		msg = ft_strjoin(file,ft_strjoin(": ", strerror(error)));
+	else
+		msg = ft_strjoin(strerror(error),"");
+	print_errors(ft_strjoin("minishell: ",msg));
 }
 
 int	redirect_input(t_mshel *mshel, int cmd_index, int status)
 {
 	int	fd;
 	int	i;
+	(void) status;
 
 	i = 0;
-	if(status)
-		redirect_to_last_output(mshel, cmd_index);
-	else
-	{
 		while (mshel->cmd[cmd_index]->redirect.input[i])
 		{
+			if(mshel->cmd[cmd_index]->redirect.in_file[i] && strcmp(mshel->cmd[cmd_index]->redirect.in_file[i], "") == 0)
+			{
+				mshel->cmd[cmd_index]->error = -3;
+				return(0);
+			}
 			fd = open(mshel->cmd[cmd_index]->redirect.in_file[i], O_RDONLY);
 			if(fd == -1)
 			{
-				mshel->cmd[cmd_index]->error = errno;
+				error_to_print(errno, mshel->cmd[cmd_index]->redirect.in_file[i]);
 				return (0);
 			}
 			if (!mshel->cmd[cmd_index]->redirect.input[i + 1])
 			{
 				if (dup2(fd,STDIN_FILENO) == 1)
-					perror("minishell ");
+					perror("minishell:");
 			}
 			close(fd);
 			i++;
 		}
-	}
 	return(1);
 }
 
@@ -77,26 +63,36 @@ int	redirect_output(t_mshel *mshel, int cmd_index)
 	{
 		if(!strcmp(mshel->cmd[cmd_index]->redirect.output[i], ">>"))
 		{
+			if(mshel->cmd[cmd_index]->redirect.out_file[i] && strcmp(mshel->cmd[cmd_index]->redirect.out_file[i], "") == 0)
+			{
+				mshel->cmd[cmd_index]->error = -3;
+				return(0);
+			}
 			tmp_fd = open(mshel->cmd[cmd_index]->redirect.out_file[i], O_RDWR | O_CREAT | O_APPEND, 0644);
 			if(tmp_fd == -1)
 			{
-				perror("minishell ");
+				error_to_print(errno, mshel->cmd[cmd_index]->redirect.out_file[i]);
 				return(0);
 			}
 		}
 		else
 		{
+			if(mshel->cmd[cmd_index]->redirect.out_file[i] && strcmp(mshel->cmd[cmd_index]->redirect.out_file[i], "") == 0)
+			{
+				mshel->cmd[cmd_index]->error = -3;
+				return(0);
+			}
 			tmp_fd = open(mshel->cmd[cmd_index]->redirect.out_file[i], O_RDWR  | O_CREAT | O_TRUNC, 0644);
 			if(tmp_fd == -1)
 			{
-				perror("minishell ");
-					return(0);
+				error_to_print(errno, mshel->cmd[cmd_index]->redirect.out_file[i]);
+				return(0);
 			}
 		}
 		if (!mshel->cmd[cmd_index]->redirect.output[i + 1])
 		{
 			if (dup2(tmp_fd,STDOUT_FILENO) == -1)
-				perror("minishell ");
+				perror("minishell:");
 		}
 		close(tmp_fd);
 		i++;

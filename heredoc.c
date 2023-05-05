@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/19 01:25:51 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/02 11:18:39 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/05 22:56:58 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,14 +57,15 @@ void	ft_heredoc(int cmd_index, t_mshel *shel)
 	int pipes[h_number][2];
 	int	i = 0;
 	int	tmp_fd;
+	char *holder;
 	int	redirection;
 	char *a;
-
+	holder = NULL;
 	open_n_close_p(pipes, 0, h_number);
 	redirection = check_redirect_place(shel->cmd[cmd_index]->redirect.in, shel->cmd[cmd_index]->redirect.out);
 	if(shel->cmd_number > 1 || (redirection && shel->cmd[cmd_index]->error == -1))
 	{
-		if (redirection == 2 || redirection == 1)
+		if ((redirection == 2 || redirection == 1 ))
 		{
 			duin = dup(STDIN_FILENO);
 			dup2(shel->cmd[cmd_index]->redirect.old_input, STDIN_FILENO);
@@ -75,7 +76,11 @@ void	ft_heredoc(int cmd_index, t_mshel *shel)
 	while (1)
 	{
 		a = readline("heredoc> ");
-		if(!strcmp(a,shel->cmd[cmd_index]->redirect.heredoc.delemiter[i]))
+		if (a == NULL)
+			break;
+		if(a[0] == '$')
+			holder = check_expanding(shel,a);
+		if(!strcmp(a,shel->cmd[cmd_index]->redirect.heredoc.delemiter[i]) || (holder  && !strcmp(holder + 1,shel->cmd[cmd_index]->redirect.heredoc.delemiter[i])))
 		{
 			a = NULL;
 			i++;
@@ -87,8 +92,8 @@ void	ft_heredoc(int cmd_index, t_mshel *shel)
 		}
 		if(a)
 		{
-			if (a[0] == '$')
-				printf_in_pipe(ft_getenv(shel, a + 1),pipes[i][1]);
+			if ((a[0] == '$' || (a[0] == '\'' || a[0] == '"' &&  && a[0] == '$')) shel->exapnd_herdoc[i] == 1)
+				printf_in_pipe(check_expanding(shel, a),pipes[i][1]);
 			else
 				printf_in_pipe(a,pipes[i][1]);
 		}
@@ -96,7 +101,7 @@ void	ft_heredoc(int cmd_index, t_mshel *shel)
 	}
 	if(shel->cmd_number > 1 || (redirection && shel->cmd[cmd_index]->error == -1))
 	{
-		if (redirection == 2 || redirection == 1)
+		if ((redirection == 2 || redirection == 1) && cmd_index == 0)
 		{
 			dup2(duin, STDIN_FILENO);
 			close(duin);

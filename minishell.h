@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 11:29:14 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/02 16:45:47 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/05 21:30:20 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ typedef	struct s_redr
 	int				in;
 	int				out;
 	t_heredoc		heredoc;
+	int				ambugius;
 } t_redr;
 
 typedef	struct s_cmd
@@ -66,6 +67,7 @@ typedef struct s_mshel
 	int		pipes;
 	int		cmd_number;
 	int		exit_status;
+	int		*exapnd_herdoc;
 } t_mshel;
 
 //************* lexer **************
@@ -119,7 +121,7 @@ void	p_w_d(void);
 int		c_d(t_mshel *shel, char *a);
 void	print_env(t_mshel *shel, int stat);
 char	*ft_getenv(t_mshel *mshel, char *a);
-void	ft_export(t_mshel *shel, int cmd_index);
+int		ft_export(t_mshel *shel, int cmd_index);
 void	dup_env(t_mshel *shel, char **env);
 void	ft_unset(t_mshel *shel, int cmd_index);
 void	run_cmd(t_mshel *shel , int cmd_index, char *cmd);
@@ -138,7 +140,9 @@ void	print_errors(char *a);
 //****************************
 
 
+char	*check_expanding(t_mshel *shel, char *str);
 
+char	**better_parsing(char *a, t_mshel *shel);
 
 
 long	checking_overwrite(t_mshel *shel,int cmd_index);

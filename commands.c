@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/16 12:31:38 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/01 16:45:39 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/05 15:50:56 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,17 +45,19 @@ int c_d(t_mshel *shel, char *a)
 
 	if (!a || !ft_strncmp(a, "~", 1))
 	{
-		free(a);
-		a = ft_strjoin("/Users/", ft_getenv(shel, "USER"));
+		a = ft_getenv(shel, "HOME");
+		if(!a)
+		{
+			print_errors("minishell: cd: HOME not set");
+			return (1);
+		}
 	}
 	ret = chdir(a);
 	if (ret == -1)
 	{
-		printf("cd : %s : %s\n", strerror(errno), a);
-		free(a);
+		print_errors(ft_strjoin("minishell:"," No such file or directory"));
 		return (1);
 	}
-	free(a);
 	return(0);
 }
 
@@ -95,8 +97,8 @@ void    execute_shell(char **cmd, t_mshel *shel)
 		{
 			if(execve(cmd[0],cmd,NULL) == -1)
 			{
-				print_errors(ft_strjoin("minishell :", strerror(errno)));
-				exit(126);
+				print_errors(ft_strjoin("minishell: ", strerror(errno)));
+				exit(127);
 			}
 		}
 		while(tmp_path[i])
@@ -108,9 +110,9 @@ void    execute_shell(char **cmd, t_mshel *shel)
 			i++;
 		}
 	}
-	if(path)
-		print_errors(ft_strjoin("minishell : command not found : ", cmd[0]));
+	if(path )
+		print_errors(ft_strjoin("minishell: command not found",""));
 	else
-		print_errors(ft_strjoin("minishell : No such file or directory : ", cmd[0]));
+		print_errors(ft_strjoin("minishell: No such file or directory", ""));
 	exit(127);
 }

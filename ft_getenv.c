@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/13 18:29:39 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/02 16:45:39 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/04 14:35:46 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ void	ft_unset_utils(t_mshel *shel, char *variable)
 	j = 0;
 	while (shel->env[i])
 	{
-		if(!ft_strncmp(shel->env[i],variable, ft_strlen(variable)))
+		if(!ft_strncmp(shel->env[i],variable, ft_strlen(variable)) && (shel->env[i][ft_strlen(variable)] == '=' || !shel->env[i][ft_strlen(variable)]))
 			i++;
 		if(shel->env[i])
 		{

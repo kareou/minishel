@@ -6,35 +6,99 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 11:22:57 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/02 16:45:43 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/05 20:46:23 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
+int	exit_function(char **a, t_mshel *shel)
+{
+	int	i;
+
+	i = 0;
+	if(!a[0])
+	{
+		if(shel->cmd_number == 1)
+			return (shel->exit_status);
+		else
+			exit(shel->exit_status);
+	}
+	else
+	{
+		while (a[0][i])
+		{
+			if (a[0][i] && (!ft_isdigit(a[0][i]) || (a[0][i] == '-' && !ft_isdigit(a[0][i]))))
+			{
+				char	*tmp;
+				tmp =  ft_strjoin("minishell: exit: ",a[i]);
+				print_errors(ft_strjoin(tmp,": numeric argument required"));
+				if(shel->cmd_number == 1)
+					return (255);
+				else
+					exit(255);
+			}
+			i++;
+		}
+		i = 0;
+		while (a[i])
+		{
+			if(i > 0)
+			{
+				print_errors("minishell: exit: too many arguments");
+				if(shel->cmd_number == 1)
+					return (1);
+				else
+					exit(1);
+			}
+			i++;
+		}
+		i = 0;
+		while (a[i])
+		{
+			if(ft_isdigit(a[i][0]) || (a[i][0] == '-' && ft_isdigit(a[i][1])))
+			{
+				if(shel->cmd_number == 1)
+					return (ft_atoi(a[i]) % 256);
+				else
+					exit(ft_atoi(a[i]) % 256);
+			}
+			i++;
+		}
+	}
+	return 0;
+}
+
 char **join_arrays(t_mshel *shel, int index, char *cmd)
 {
     char **new_cmd;
     int i;
+	int	j;
 
     i = 0;
     while (shel->cmd[index]->args[i] != NULL)
         i++;
-    new_cmd = malloc(sizeof(char *) * (i + 2)); // Parentheses added here
+    new_cmd = malloc(sizeof(char *) * (i + 2));
     if (shel->cmd[index]->args == NULL)
     {
-        new_cmd[0] = ft_strdup(cmd);
+        new_cmd[0] = ft_strtrim(ft_strdup(cmd)," ");
         new_cmd[1] = NULL;
         return (new_cmd);
     }
     i = 0;
     new_cmd[0] = ft_strdup(cmd);
+	j = 1;
     while (shel->cmd[index]->args[i] != NULL)
     {
-        new_cmd[i + 1] = ft_strdup(shel->cmd[index]->args[i]);
-        i++;
+		if (!shel->cmd[index]->args[i] || !shel->cmd[index]->args[i][0])
+			i++;
+		else if(shel->cmd[index]->args[i])
+		{
+        	new_cmd[j++] = ft_strtrim(ft_strdup(shel->cmd[index]->args[i])," ");
+        	i++;
+		}
     }
-    new_cmd[i + 1] = NULL; // Add terminating NULL pointer
+    new_cmd[j] = NULL;
     return (new_cmd);
 }
 
@@ -45,19 +109,21 @@ void	run_cmd(t_mshel *shel , int cmd_index, char *cmd)
 	int	exited;
 
 	exited = 0;
-	if (!strncmp(cmd, "echo", strlen(cmd)) || !ft_strncmp(cmd, "/bin/echo", ft_strlen(cmd)))
+	if (cmd[0] && (!strncmp(cmd, "echo", strlen("echo")) || !ft_strncmp(cmd, "/bin/echo", ft_strlen("/bin/echo"))))
 		ech_o(shel, cmd_index);
-	else if (!strncmp(cmd, "pwd", strlen(cmd)) || !ft_strncmp(cmd, "/bin/pwd", ft_strlen(cmd)))
+	else if (cmd[0] && (!strncmp(cmd, "pwd", strlen("pwd")) || !ft_strncmp(cmd, "/bin/pwd", ft_strlen("/bin/pwd"))))
 		p_w_d();
-	else if (!strncmp(cmd, "cd", strlen(cmd)) || !ft_strncmp(cmd, "/usr/bin/cd", ft_strlen(cmd)))
+	else if (cmd[0] && (!strncmp(cmd, "cd", strlen("cd")) || !ft_strncmp(cmd, "/usr/bin/cd", ft_strlen("/usr/bin/cd"))))
 		exited = c_d(shel, shel->cmd[cmd_index]->args[0]);
-	else if (!strncmp(cmd, "exit", strlen(cmd)))
-		exit(0);
-	else if (!ft_strncmp(cmd, "export", strlen(cmd)))
-		ft_export(shel, cmd_index);
-	else if (!strncmp(cmd, "unset", strlen(cmd)))
+	else if (cmd[0] && !strncmp(cmd, "exit", strlen("exit")))
+	{
+		exited = exit_function(shel->cmd[cmd_index]->args, shel);
+	}
+	else if (cmd[0] && !ft_strncmp(cmd, "export", strlen("export")))
+		exited = ft_export(shel, cmd_index);
+	else if (cmd[0] && !strncmp(cmd, "unset", strlen("unset")))
 		ft_unset(shel,  cmd_index);
-	else if (!strncmp(cmd, "env", strlen(cmd)) || !ft_strncmp(cmd, "/usr/bin/env", ft_strlen(cmd)))
+	else if (cmd[0] && (!strncmp(cmd, "env", strlen("env")) || !ft_strncmp(cmd, "/usr/bin/env", ft_strlen("/usr/bin/env"))))
 		print_env(shel, 0);
 	else
 	{
@@ -80,21 +146,17 @@ void execute_cmd(t_mshel *shel, int (*pipe)[2], int cmd_index, int status)
 	char *cmd;
 	int red_status;
 
-	// if (shel->cmd[cmd_index]->cmd[0] == '$' && shel->cmd[cmd_index]->cmd)
-	// {
-	// 	if(shel->cmd[cmd_index]->cmd[1] == '?')
-	// 		cmd  = ft_itoa(shel->exit_status);
-	// 	else
-	// 		cmd = ft_getenv(shel, shel->cmd[cmd_index]->cmd + 1);
-	// }
-	// else if (shel->cmd[cmd_index]->cmd)
-		cmd = shel->cmd[cmd_index]->cmd;
+	cmd = shel->cmd[cmd_index]->cmd;
 	red_status = check_redirect_place(shel->cmd[cmd_index]->redirect.in, shel->cmd[cmd_index]->redirect.out);
 	if (!redirect_to_pipe(shel, pipe, cmd_index, red_status, status))
 	{
 		if (!status && shel->cmd[cmd_index]->redirect.heredoc.heredoc_number == 0)
 		{
-			print_errors(ft_strjoin("minishel :", strerror(shel->cmd[cmd_index]->error)));
+			if(shel->cmd[cmd_index]->error == -3)
+			{
+				print_errors(ft_strjoin("minishell: ambiguous redirect",""));
+			}
+			shel->exit_status = 1;
 			return;
 		}
 		else if (status)
@@ -102,28 +164,47 @@ void execute_cmd(t_mshel *shel, int (*pipe)[2], int cmd_index, int status)
 	}
 	if(red_status == 1)
 	{
-		redirect_input(shel, cmd_index, 0);
-		redirect_output(shel, cmd_index);
+		if (!redirect_input(shel, cmd_index, 0))
+		{
+			if(shel->cmd[cmd_index]->error == -3)
+				print_errors(ft_strjoin("minishell: ambiguous redirect",""));
+			shel->exit_status = 1;
+			if (status)
+				exit(1);
+			else
+				return;
+		}
+		if (!redirect_output(shel, cmd_index))
+		{
+			if(shel->cmd[cmd_index]->error == -3)
+				print_errors(ft_strjoin("minishell: ambiguous redirect",""));
+			if (status)
+				exit(1);
+			else
+				return;
+		}
 	}
 	if (red_status != 1 && status != 0)
 		close_all_pipes(pipe, shel->cmd_number);
-	if(shel->cmd[cmd_index]->cmd && shel->cmd[cmd_index]->cmd[0])
+	if(shel->cmd[cmd_index]->cmd)
 	{
 		if(shel->cmd[cmd_index]->redirect.heredoc.heredoc_number == 0)
 			run_cmd(shel,cmd_index, cmd);
-		else
+		else if(shel->cmd[cmd_index]->redirect.heredoc.heredoc_number > 0)
 			ft_heredoc(cmd_index, shel);
 	}
 	if(shel->cmd_number > 1)
 			exit(0);
-	if(shel->cmd[cmd_index]->error != -1)
-		print_errors(ft_strjoin("minishel :", strerror(shel->cmd[cmd_index]->error)));
+	// if(shel->cmd[cmd_index]->error != -1)
+	// 	print_errors(ft_strjoin("minishell :", strerror(shel->cmd[cmd_index]->error)));
 	if (shel->cmd[cmd_index]->redirect.old_output != 0)
 	{
 		if (dup2(shel->cmd[cmd_index]->redirect.old_output, STDOUT_FILENO) == -1)
-			perror("minishel :");
+			perror("minishell :");
 	}
 	if (shel->cmd[cmd_index]->redirect.old_input != 0)
+	{
 		if (dup2(shel->cmd[cmd_index]->redirect.old_input, STDIN_FILENO) == -1)
-			perror("minishel :");
+			perror("minishell :");
+	}
 }

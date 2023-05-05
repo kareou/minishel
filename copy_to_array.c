@@ -6,11 +6,24 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/10 10:46:32 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/02 11:15:59 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/05 22:23:37 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+void	find_token_and_file(char *a)
+{
+	int	i;
+
+	i = 0;
+	while (a[i])
+	{
+
+		i++;
+	}
+
+}
 
 int find_cmd(char **a)
 {
@@ -19,12 +32,14 @@ int find_cmd(char **a)
 	i = 0;
 	while (a[i])
 	{
-		if (!strcmp(a[i], ">") || !strcmp(a[i], "<") ||
-				!strcmp(a[i], ">>") || !strcmp(a[i], "<<"))
-			i += 2;
-		else if(!strcmp(a[i], "|"))
+		if (a[i] && (!strcmp(a[i], ">") || !strcmp(a[i], "<") ||
+				!strcmp(a[i], ">>") || !strcmp(a[i], "<<")))
+		{
+			i += (a[i+1] != NULL) ? 2 : 1;;
+		}
+		else if(a[i] && a[i][0] && !strcmp(a[i], "|") && i != 0)
 			i++;
-		else
+		else if (a[i])
 			return(i);
 	}
 	return (-1);
@@ -50,7 +65,7 @@ void transfer_args(t_lexer *lexer, t_mshel *shel, int j, int k, int flag)
 		}
 		if(lexer->str[start])
 		{
-			if (strcmp(lexer->str[start], "|") == 0)
+			if (strcmp(lexer->str[start], "|") == 0 && start != 0)
 				start++;
 		}
 		if (lexer->str[start])
@@ -62,9 +77,17 @@ void transfer_args(t_lexer *lexer, t_mshel *shel, int j, int k, int flag)
 				{
 					shel->cmd[k]->redirect.in = 1;
 					shel->cmd[k]->redirect.input[r] = ft_strdup(lexer->str[start]);
-					shel->cmd[k]->redirect.in_file[r] = ft_strdup(lexer->str[start + 1]);
+					if (!lexer->str[start + 1][0])
+					{
+						shel->cmd[k]->redirect.in_file[r] = ft_calloc(1,1);
+						start += 1;
+					}
+					else
+					{
+						shel->cmd[k]->redirect.in_file[r] = ft_strdup(lexer->str[start + 1]);
+						start += 2;
+					}
 					r++;
-					start += 2;
 				}
 				if (lexer->str[start] && !strcmp(lexer->str[start], "<<"))
 				{
@@ -76,9 +99,17 @@ void transfer_args(t_lexer *lexer, t_mshel *shel, int j, int k, int flag)
 				{
 					shel->cmd[k]->redirect.out = 1;
 					shel->cmd[k]->redirect.output[o] = ft_strdup(lexer->str[start]);
-					shel->cmd[k]->redirect.out_file[o] = ft_strdup(lexer->str[start + 1]);
+					if (!lexer->str[start + 1][0])
+					{
+						shel->cmd[k]->redirect.out_file[o] = ft_calloc(1,1);
+						start += 1;
+					}
+					else
+					{
+						shel->cmd[k]->redirect.out_file[o] = ft_strdup(lexer->str[start + 1]);
+						start += 2;
+					}
 					o++;
-					start += 2;
 				}
 			}
 			else
@@ -125,7 +156,7 @@ void transfer_cmd(t_lexer *lexer, t_mshel *shel)
 		shel->cmd[i]->redirect.heredoc.heredoc_number = 0;
 		cmd_position = find_cmd(head->str);
 		if(cmd_position == -1)
-			shel->cmd[i]->cmd = ft_calloc(1,1);
+			shel->cmd[i]->cmd = NULL;
 		else
 			shel->cmd[i]->cmd = ft_strdup(head->str[cmd_position]);
 		shel->cmd[i]->args[0] = ft_calloc(1,1);
@@ -146,6 +177,7 @@ void transfer_cmd(t_lexer *lexer, t_mshel *shel)
 			transfer_args(head, shel, cmd_position, i , 1);
 		else
 			transfer_args(head, shel, cmd_position, i, 0);
+
 		if(shel->cmd[i]->redirect.heredoc.heredoc_number > 0)
 		{
 			if(shel->cmd[i]->cmd)
@@ -199,11 +231,20 @@ void transfer_to_array(t_lexer *lexer, int size_arrays, t_mshel *mshel)
 		mshel->cmd[i]->error = -1;
 		mshel->cmd[i]->redirect.old_output = 0;
 		mshel->cmd[i]->redirect.old_input = 0;
+		mshel->cmd[i]->redirect.ambugius = 0;
 		i++;
 	}
 	transfer_cmd(lexer, mshel);
 	if (mshel->cmd_number == 1)
+	{
+		// if(mshel->cmd[0]->redirect.ambugius == 1)
+		// {
+		// 	print_errors("minishell: ambiguous redirect");
+		// 	mshel->exit_status = 1;
+		// 	return ;
+		// }
 		execute_cmd(mshel, pipe, 0, 0);
+	}
 	else
 		pipe_and_start(mshel);
 }

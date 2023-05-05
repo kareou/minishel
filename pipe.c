@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/27 22:48:51 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/02 16:01:50 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/04 22:11:35 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,11 +86,7 @@ int redirect_to_pipe(t_mshel *shel , int (*pipe)[2], int i, int red_status, int 
 					perror("minishell :");
 			}
 			if(red_status == 3)
-			{
-				if(checking_overwrite(shel, i) < 0)
-					return (0);
 				redirect_output(shel,i);
-			}
 		}
 	}
 	return (1);
@@ -128,6 +124,29 @@ void pipe_and_start(t_mshel *mshel)
 	i = 0;
 	while (i < mshel->cmd_number)
 	{
+		if(mshel->cmd[i]->redirect.heredoc.heredoc_number > 0)
+		{
+			id = fork();
+			if (id == -1)
+				printf("minishell : %s\n", strerror(errno));
+			if (id == 0)
+				execute_cmd(mshel, pipes, i, 1);
+			else
+				wait(NULL);
+		}
+		i++;
+	}
+	i = 0;
+	while (i < mshel->cmd_number)
+	{
+		if(mshel->cmd[i]->redirect.heredoc.heredoc_number > 0)
+			i++;
+		if(mshel->cmd[i]->redirect.ambugius == 1)
+		{
+			print_errors("minishell: ambiguous redirect");
+			mshel->exit_status = 1;
+			return ;
+		}
 		id = fork();
 		if (id == -1)
 			printf("minishell : %s\n", strerror(errno));

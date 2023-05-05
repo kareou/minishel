@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/31 12:09:44 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/02 16:41:18 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/05 11:33:10 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,13 +63,26 @@ int check_cmd(t_lexer *head)
 int check_flag(t_lexer *head)
 {
 	int i = 0;
+	int	k = 0;
 	head->flag = 0;
 	while (head->str[i])
 	{
-		if (ft_strncmp(head->str[i], "-n", 3) == 0)
+		if (ft_strncmp(head->str[i], "-n", 2) == 0)
 		{
-			head->flag = 1;
-			return (0);
+			k = 0;
+			if(head->str[i][k] != '-')
+				break;
+			else
+				k++;
+			while (head->str[i][k] && head->str[i][k] == 'n' && head->str[i][k + 1] == 'n')
+				k++;
+			if(!head->str[i][k + 1] && head->str[i + 1])
+			{
+				head->flag = 1;
+				break;
+			}
+			else
+				return (0);
 		}
 		i++;
 	}
@@ -185,39 +198,84 @@ int	find_dollar(char *a)
 	return(-1);
 }
 
-void	check_expanding(t_lexer *lst, t_mshel *shel)
+char	*check_expanding(t_mshel *shel,char *str)
 {
 	int		i;
 	int		dollar_index;
 	char	**tmp;
+	char	*value;
+	char	*placeholder;
 
-	i = 0;
-	while (lst->str[i])
+	i = 1;
+	dollar_index = find_dollar(str);
+	if (!str[dollar_index + 1])
+		return(str);
+	tmp = ft_split(str,'$');
+	value = NULL;
+	if(dollar_index == 0)
 	{
-		if(ft_strchr(lst->str[i],'$'))
+		i = 0;
+		while (tmp[i])
 		{
-			dollar_index = find_dollar(lst->str[i]);
-			tmp = ft_split(lst->str[i],'$');
-			if(dollar_index == 0)
+			if(ft_isdigit(tmp[i][0]) || (!ft_isalnum(tmp[i][0]) && (tmp[i][0] != '?' && tmp[i][0] != '_')) )
+				value = ft_substr(tmp[i], 1, ft_strlen(tmp[i]));
+			else if(tmp[i][0] == '?')
 			{
-				free(lst->str[i]);
-				if(ft_isdigit(tmp[0][0]))
-					lst->str[i] = ft_strdup(tmp[0] + 1);
+				placeholder = ft_strdup(ft_itoa(shel->exit_status));
+				if(value)
+					value = ft_strjoin(value, placeholder);
 				else
-					lst->str[i] = ft_strdup(ft_getenv(shel, tmp[0]));
+					value = ft_strdup(placeholder);
+				if (tmp[i][1])
+					value = ft_strjoin(value, tmp[i] + 1);
 			}
 			else
 			{
-				free(lst->str[i]);
-				lst->str[i] = ft_strdup(tmp[0]);
-				if(ft_isdigit(tmp[1][0]))
-					lst->str[i] = ft_strjoin(lst->str[i],tmp[1] + 1);
+				int	k = 0;
+				while (tmp[i][k] &&( ft_isalnum(tmp[i][k]) || tmp[i][k] == '_'))
+					k++;
+				placeholder = ft_getenv(shel,ft_substr(tmp[i], 0, k));
+				if(placeholder)
+				{
+					if(value)
+						value = ft_strjoin(value, placeholder);
+					else
+						value = ft_strdup(placeholder);
+				}
 				else
-					lst->str[i] = ft_strjoin(lst->str[i], ft_getenv(shel, tmp[1]));
+					value = NULL;
+				if(tmp[i][k])
+						value = ft_strjoin(value, ft_substr(tmp[i], k, ft_strlen(tmp[i])));
 			}
+			i++;
 		}
-		i++;
 	}
+	else if (dollar_index > 0 && tmp)
+	{
+		value = ft_strdup(tmp[0]);
+		while (tmp[i])
+		{
+			if(ft_isdigit(tmp[i][0]))
+				value = ft_strjoin(value,tmp[i] + 1);
+			if(tmp[i][0] == '?')
+			{
+				value = ft_strjoin(value, ft_itoa(shel->exit_status));
+				if (tmp[i][1])
+					value = ft_strjoin(value, tmp[i] + 1);
+			}
+			else
+			{
+				int k = 0;
+				while (tmp[i][k] && (ft_isalnum(tmp[i][k]) || tmp[i][k] == '_'))
+					k++;
+				value = ft_strjoin(value, ft_getenv(shel, ft_substr(tmp[i], 0, k)));
+				if (tmp[i][k])
+					value = ft_strjoin(value, ft_substr(tmp[i], k, ft_strlen(tmp[i])));
+			}
+			i++;
+		}
+	}
+	return(value);
 }
 
 void parser(t_lexer *lst, t_mshel *shel)
@@ -235,38 +293,8 @@ void parser(t_lexer *lst, t_mshel *shel)
 		check_pipe(head);
 		check_dollar(head);
 		check_redirection(head);
-		check_expanding(head, shel);
 		head = head->next;
 		i++;
 	}
 	transfer_to_array(lst, i, shel);
-	// t_lexer *test = lst;
-	// int i = 0;
-	// int j = 0;
-	// int t = 0;
-	// while (test)
-	// {
-	// 	printf("/****************************/\n");
-	// 	j = 0;
-	// 	i = 0;
-	// 	t = 0;
-	// 	printf("	String : [");
-	// 	while (test->str[i])
-	// 		printf(" {%s} ", test->str[i++]);
-	// 	printf("]\n");
-	// 	printf("	Commande: {%s}, \n", test->cmd);
-	// 	printf("	Flag: %d\n", test->flag);
-	// 	printf("	Pipe: %d\n", test->pipe);
-	// 	while (t <= test->env->i)
-	// 		printf("	ENV: %s\n", test->env[t++].dollar);
-	// 	while (test->table[j].redire == 1)
-	// 	{
-	// 		printf("	Token: %d\n", test->table[j].redire);
-	// 		printf("	Redirection token: %s\n", test->table[j].token_redire);
-	// 		printf("	Name File Redirection : %s\n", test->table[j].name_file);
-	// 		j++;
-	// 	}
-	// 	printf("/******* NEXT NODE **********/\n");
-	// 	test = test->next;
-	// }
 }
