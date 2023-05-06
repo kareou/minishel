@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 11:28:46 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/05 22:46:59 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/06 19:27:51 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,10 @@ void lexer(char *input, t_mshel *shel)
     int k = 0;
     while (string[k])
     {
-        string[k] = ft_strtrim(string[k], " ");
+        if(ft_strchr(string[k], ' ') && !ft_strchr(string[k], ' ') + 1 && ft_strlen(string[k]) > 1 && string[k][ft_strlen(string[k]) - 2] == '=')
+            string[k] = string[k];
+        else
+            string[k] = ft_strtrim(string[k], " ");
         k++;
     }
 

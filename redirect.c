@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/12 18:48:02 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/05 22:15:52 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/06 21:38:37 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ int	redirect_input(t_mshel *mshel, int cmd_index, int status)
 	i = 0;
 		while (mshel->cmd[cmd_index]->redirect.input[i])
 		{
-			if(mshel->cmd[cmd_index]->redirect.in_file[i] && strcmp(mshel->cmd[cmd_index]->redirect.in_file[i], "") == 0)
+			if(!mshel->cmd[cmd_index]->redirect.in_file[i])
 			{
 				mshel->cmd[cmd_index]->error = -3;
 				return(0);
@@ -39,8 +39,9 @@ int	redirect_input(t_mshel *mshel, int cmd_index, int status)
 			fd = open(mshel->cmd[cmd_index]->redirect.in_file[i], O_RDONLY);
 			if(fd == -1)
 			{
-				error_to_print(errno, mshel->cmd[cmd_index]->redirect.in_file[i]);
-				return (0);
+				mshel->cmd[cmd_index]->error = errno;
+				mshel->cmd[cmd_index]->error_file = ft_strdup(mshel->cmd[cmd_index]->redirect.in_file[i]);
+				return(0);
 			}
 			if (!mshel->cmd[cmd_index]->redirect.input[i + 1])
 			{
@@ -63,7 +64,7 @@ int	redirect_output(t_mshel *mshel, int cmd_index)
 	{
 		if(!strcmp(mshel->cmd[cmd_index]->redirect.output[i], ">>"))
 		{
-			if(mshel->cmd[cmd_index]->redirect.out_file[i] && strcmp(mshel->cmd[cmd_index]->redirect.out_file[i], "") == 0)
+			if(!mshel->cmd[cmd_index]->redirect.out_file[i])
 			{
 				mshel->cmd[cmd_index]->error = -3;
 				return(0);
@@ -71,13 +72,14 @@ int	redirect_output(t_mshel *mshel, int cmd_index)
 			tmp_fd = open(mshel->cmd[cmd_index]->redirect.out_file[i], O_RDWR | O_CREAT | O_APPEND, 0644);
 			if(tmp_fd == -1)
 			{
-				error_to_print(errno, mshel->cmd[cmd_index]->redirect.out_file[i]);
+				mshel->cmd[cmd_index]->error = errno;
+				mshel->cmd[cmd_index]->error_file = ft_strdup(mshel->cmd[cmd_index]->redirect.out_file[i]);
 				return(0);
 			}
 		}
 		else
 		{
-			if(mshel->cmd[cmd_index]->redirect.out_file[i] && strcmp(mshel->cmd[cmd_index]->redirect.out_file[i], "") == 0)
+			if(!mshel->cmd[cmd_index]->redirect.out_file[i])
 			{
 				mshel->cmd[cmd_index]->error = -3;
 				return(0);
@@ -85,7 +87,8 @@ int	redirect_output(t_mshel *mshel, int cmd_index)
 			tmp_fd = open(mshel->cmd[cmd_index]->redirect.out_file[i], O_RDWR  | O_CREAT | O_TRUNC, 0644);
 			if(tmp_fd == -1)
 			{
-				error_to_print(errno, mshel->cmd[cmd_index]->redirect.out_file[i]);
+				mshel->cmd[cmd_index]->error = errno;
+				mshel->cmd[cmd_index]->error_file = ft_strdup(mshel->cmd[cmd_index]->redirect.out_file[i]);
 				return(0);
 			}
 		}

@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/13 20:24:39 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/05 18:03:54 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/06 21:07:44 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,8 +120,16 @@ int add_x_env(t_mshel *shel, char *variable)
 
 	i = 0;
 	var = ft_split(variable, '=');
-	if(!check_valid(var[0], variable, 0, shel))
+	if(!var[1] && variable[ft_strlen(variable) - 1] != '=')
+	{
+		if(!check_valid(var[0], variable, 1, shel))
 		return(0);
+	}
+	else
+	{
+		if(!check_valid(var[0], variable, 0, shel))
+		return(0);
+	}
 	while (shel->x_env[i])
 	{
 		if (!ft_strncmp(shel->x_env[i], var[0], ft_strlen(var[0])))

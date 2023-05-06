@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/19 10:56:24 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/05 22:52:23 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/06 19:39:07 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ void    ech_o(t_mshel *shel, int i)
 	{
 		string_to_print(ft_strtrim(shel->cmd[i]->args[j], " "), shel);
 		j++;
-		if(shel->cmd[i]->args[j])
+		if(shel->cmd[i]->args[j]  && shel->cmd[i]->args[j][0])
 			write(1," ", 1);
 	}
 	if(shel->cmd[i]->flags != 1)
@@ -74,7 +74,7 @@ void print_env(t_mshel *shel, int stat)
 				printf("\"");
 				while (shel->x_env[i][k])
 				{
-					if(!ft_isalnum( shel->x_env[i][k]))
+					if(!ft_isalnum( shel->x_env[i][k]) && ft_strchr("$\"",shel->x_env[i][k]))
 						printf("\\");
 					printf("%c", shel->x_env[i][k]);
 					k++;

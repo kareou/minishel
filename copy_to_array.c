@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/10 10:46:32 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/05 22:23:37 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/06 21:50:49 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@ void	find_token_and_file(char *a)
 	i = 0;
 	while (a[i])
 	{
-
 		i++;
 	}
 
@@ -77,15 +76,20 @@ void transfer_args(t_lexer *lexer, t_mshel *shel, int j, int k, int flag)
 				{
 					shel->cmd[k]->redirect.in = 1;
 					shel->cmd[k]->redirect.input[r] = ft_strdup(lexer->str[start]);
-					if (!lexer->str[start + 1][0])
+					if (lexer->str[start + 1] && !lexer->str[start + 1][0])
 					{
-						shel->cmd[k]->redirect.in_file[r] = ft_calloc(1,1);
+						shel->cmd[k]->redirect.in_file[r] = NULL;
 						start += 1;
 					}
-					else
+					else if (lexer->str[start + 1])
 					{
 						shel->cmd[k]->redirect.in_file[r] = ft_strdup(lexer->str[start + 1]);
 						start += 2;
+					}
+					else
+					{
+						shel->cmd[k]->redirect.in_file[o] = ft_calloc(1,1);
+						start++;
 					}
 					r++;
 				}
@@ -99,15 +103,20 @@ void transfer_args(t_lexer *lexer, t_mshel *shel, int j, int k, int flag)
 				{
 					shel->cmd[k]->redirect.out = 1;
 					shel->cmd[k]->redirect.output[o] = ft_strdup(lexer->str[start]);
-					if (!lexer->str[start + 1][0])
+					if (lexer->str[start + 1] && !lexer->str[start + 1][0])
 					{
-						shel->cmd[k]->redirect.out_file[o] = ft_calloc(1,1);
+						shel->cmd[k]->redirect.out_file[o] = NULL;
 						start += 1;
 					}
-					else
+					else if (lexer->str[start + 1])
 					{
 						shel->cmd[k]->redirect.out_file[o] = ft_strdup(lexer->str[start + 1]);
 						start += 2;
+					}
+					else
+					{
+						shel->cmd[k]->redirect.out_file[o] = ft_calloc(1,1);
+						start++;
 					}
 					o++;
 				}
@@ -189,7 +198,7 @@ void transfer_cmd(t_lexer *lexer, t_mshel *shel)
 		i++;
 		head = head->next;
 	}
-	shel->cmd_number = i;
+		shel->cmd_number = i;
 }
 
 void dup_env(t_mshel *shel, char **env)
@@ -236,15 +245,7 @@ void transfer_to_array(t_lexer *lexer, int size_arrays, t_mshel *mshel)
 	}
 	transfer_cmd(lexer, mshel);
 	if (mshel->cmd_number == 1)
-	{
-		// if(mshel->cmd[0]->redirect.ambugius == 1)
-		// {
-		// 	print_errors("minishell: ambiguous redirect");
-		// 	mshel->exit_status = 1;
-		// 	return ;
-		// }
 		execute_cmd(mshel, pipe, 0, 0);
-	}
 	else
 		pipe_and_start(mshel);
 }

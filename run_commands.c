@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 11:22:57 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/05 20:46:23 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/06 22:22:36 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ int	exit_function(char **a, t_mshel *shel)
 	{
 		while (a[0][i])
 		{
-			if (a[0][i] && (!ft_isdigit(a[0][i]) || (a[0][i] == '-' && !ft_isdigit(a[0][i]))))
+			if (a[0][i] && ((!ft_isdigit(a[0][i]) || ( a[0][i] && a[0][0] == '-' && !ft_isdigit(a[0][i])))))
 			{
 				char	*tmp;
 				tmp =  ft_strjoin("minishell: exit: ",a[i]);
@@ -81,7 +81,7 @@ char **join_arrays(t_mshel *shel, int index, char *cmd)
     new_cmd = malloc(sizeof(char *) * (i + 2));
     if (shel->cmd[index]->args == NULL)
     {
-        new_cmd[0] = ft_strtrim(ft_strdup(cmd)," ");
+        new_cmd[0] = ft_strdup(cmd);
         new_cmd[1] = NULL;
         return (new_cmd);
     }
@@ -116,9 +116,7 @@ void	run_cmd(t_mshel *shel , int cmd_index, char *cmd)
 	else if (cmd[0] && (!strncmp(cmd, "cd", strlen("cd")) || !ft_strncmp(cmd, "/usr/bin/cd", ft_strlen("/usr/bin/cd"))))
 		exited = c_d(shel, shel->cmd[cmd_index]->args[0]);
 	else if (cmd[0] && !strncmp(cmd, "exit", strlen("exit")))
-	{
 		exited = exit_function(shel->cmd[cmd_index]->args, shel);
-	}
 	else if (cmd[0] && !ft_strncmp(cmd, "export", strlen("export")))
 		exited = ft_export(shel, cmd_index);
 	else if (cmd[0] && !strncmp(cmd, "unset", strlen("unset")))
@@ -153,9 +151,9 @@ void execute_cmd(t_mshel *shel, int (*pipe)[2], int cmd_index, int status)
 		if (!status && shel->cmd[cmd_index]->redirect.heredoc.heredoc_number == 0)
 		{
 			if(shel->cmd[cmd_index]->error == -3)
-			{
 				print_errors(ft_strjoin("minishell: ambiguous redirect",""));
-			}
+			else
+				error_to_print(shel->cmd[cmd_index]->error, shel->cmd[cmd_index]->error_file);
 			shel->exit_status = 1;
 			return;
 		}
@@ -168,6 +166,8 @@ void execute_cmd(t_mshel *shel, int (*pipe)[2], int cmd_index, int status)
 		{
 			if(shel->cmd[cmd_index]->error == -3)
 				print_errors(ft_strjoin("minishell: ambiguous redirect",""));
+			else
+				error_to_print(shel->cmd[cmd_index]->error, shel->cmd[cmd_index]->error_file);
 			shel->exit_status = 1;
 			if (status)
 				exit(1);
@@ -178,6 +178,9 @@ void execute_cmd(t_mshel *shel, int (*pipe)[2], int cmd_index, int status)
 		{
 			if(shel->cmd[cmd_index]->error == -3)
 				print_errors(ft_strjoin("minishell: ambiguous redirect",""));
+			else
+				error_to_print(shel->cmd[cmd_index]->error, shel->cmd[cmd_index]->error_file);
+			shel->exit_status = 1;
 			if (status)
 				exit(1);
 			else
@@ -195,8 +198,18 @@ void execute_cmd(t_mshel *shel, int (*pipe)[2], int cmd_index, int status)
 	}
 	if(shel->cmd_number > 1)
 			exit(0);
-	// if(shel->cmd[cmd_index]->error != -1)
-	// 	print_errors(ft_strjoin("minishell :", strerror(shel->cmd[cmd_index]->error)));
+	if(shel->cmd[cmd_index]->error != -1)
+	{
+		if(shel->cmd[cmd_index]->error == -3)
+				print_errors(ft_strjoin("minishell: ambiguous redirect",""));
+		else
+			error_to_print(shel->cmd[cmd_index]->error, shel->cmd[cmd_index]->error_file);
+		shel->exit_status = 1;
+		if (status)
+				exit(1);
+		else
+			return;
+	}
 	if (shel->cmd[cmd_index]->redirect.old_output != 0)
 	{
 		if (dup2(shel->cmd[cmd_index]->redirect.old_output, STDOUT_FILENO) == -1)

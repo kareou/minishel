@@ -6,11 +6,21 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/19 01:25:51 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/05 22:56:58 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/06 22:34:50 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+char	*remove_quotes(char *a, int c)
+{
+	char	*returned;
+	if(c == '\'')
+		returned = ft_strtrim(a, "'");
+	if(c == '"')
+		returned = ft_strtrim(a, "\"");
+	return(returned);
+}
 
 void	open_n_close_p(int (*pipes)[2], int cs, int p_number)
 {
@@ -41,6 +51,12 @@ void	printf_in_pipe(char *a, int fd)
 	int		i;
 
 	i = 0;
+	if(!a)
+	{
+		write(fd,"\n",1);
+		return ;
+	}
+
 	while (a[i])
 	{
 		write(fd, &a[i],1);
@@ -77,10 +93,15 @@ void	ft_heredoc(int cmd_index, t_mshel *shel)
 	{
 		a = readline("heredoc> ");
 		if (a == NULL)
+		{
+			i++;
 			break;
+		}
 		if(a[0] == '$')
 			holder = check_expanding(shel,a);
-		if(!strcmp(a,shel->cmd[cmd_index]->redirect.heredoc.delemiter[i]) || (holder  && !strcmp(holder + 1,shel->cmd[cmd_index]->redirect.heredoc.delemiter[i])))
+		if((a[0] == '\'' && shel->cmd[cmd_index]->redirect.heredoc.delemiter[i][0] == '\'') || (a[0] == '"' && shel->cmd[cmd_index]->redirect.heredoc.delemiter[i][0] == '"'))
+			holder = remove_quotes(a, a[0]);
+		if(!strcmp(a,shel->cmd[cmd_index]->redirect.heredoc.delemiter[i]) || (holder  && !strcmp(holder,shel->cmd[cmd_index]->redirect.heredoc.delemiter[i])))
 		{
 			a = NULL;
 			i++;
@@ -92,7 +113,7 @@ void	ft_heredoc(int cmd_index, t_mshel *shel)
 		}
 		if(a)
 		{
-			if ((a[0] == '$' || (a[0] == '\'' || a[0] == '"' &&  && a[0] == '$')) shel->exapnd_herdoc[i] == 1)
+			if (ft_strchr(a, '$') && shel->exapnd_herdoc[i] == 1)
 				printf_in_pipe(check_expanding(shel, a),pipes[i][1]);
 			else
 				printf_in_pipe(a,pipes[i][1]);
@@ -112,11 +133,14 @@ void	ft_heredoc(int cmd_index, t_mshel *shel)
 	if (redirection != 2 && redirection != 1 && shel->cmd[cmd_index]->error == -1)
 	{
 		tmp_fd = dup(STDIN_FILENO);
-		if (dup2(pipes[i - 1][0], STDIN_FILENO) == -1)
+		if(i != 0)
+		{
+			if (dup2(pipes[i - 1][0], STDIN_FILENO) == -1)
 				perror("minisdhell :");
+		}
 	}
 	open_n_close_p(pipes, 1, h_number);
-	if(shel->cmd[cmd_index]->cmd && shel->cmd[cmd_index]->cmd[0] && shel->cmd[cmd_index]->error == -1)
+	if(shel->cmd[cmd_index]->cmd && shel->cmd[cmd_index]->error == -1)
 		run_cmd(shel, cmd_index, shel->cmd[cmd_index]->cmd);
 	if (shel->cmd[cmd_index]->redirect.old_input != 0 && (redirection != 2 || redirection != 1) && shel->cmd[cmd_index]->error == -1)
 		dup2(tmp_fd, STDIN_FILENO);

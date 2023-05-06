@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/31 12:09:44 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/05 11:33:10 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/06 18:44:38 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -268,6 +268,7 @@ char	*check_expanding(t_mshel *shel,char *str)
 				int k = 0;
 				while (tmp[i][k] && (ft_isalnum(tmp[i][k]) || tmp[i][k] == '_'))
 					k++;
+
 				value = ft_strjoin(value, ft_getenv(shel, ft_substr(tmp[i], 0, k)));
 				if (tmp[i][k])
 					value = ft_strjoin(value, ft_substr(tmp[i], k, ft_strlen(tmp[i])));

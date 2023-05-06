@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 11:29:14 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/05 21:30:20 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/06 21:37:59 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,7 @@ typedef	struct s_cmd
 	char	**args;
 	t_redr	redirect;
 	int		error;
+	char	*error_file;
 } t_cmd;
 
 typedef struct s_mshel
@@ -146,5 +147,7 @@ char	**better_parsing(char *a, t_mshel *shel);
 
 
 long	checking_overwrite(t_mshel *shel,int cmd_index);
+
+void	error_to_print(int error, char *file);
 
 #endif

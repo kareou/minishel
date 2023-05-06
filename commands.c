@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/16 12:31:38 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/05 15:50:56 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/06 22:19:20 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,14 @@ void p_w_d(void)
 	char a[PATH_MAX];
 
 	getcwd(a, sizeof(a));
-	printf("%s\n", a);
+	int	i;
+	i = 0;
+	while (a[i])
+	{
+		write(1,&a[i],1);
+		i++;
+	}
+	write(1,"\n",1);
 }
 
 char    *join_cnp(char *a, char *b)
@@ -111,8 +118,8 @@ void    execute_shell(char **cmd, t_mshel *shel)
 		}
 	}
 	if(path )
-		print_errors(ft_strjoin("minishell: command not found",""));
+		print_errors("minishell: command not found");
 	else
-		print_errors(ft_strjoin("minishell: No such file or directory", ""));
+		print_errors("minishell: No such file or directory");
 	exit(127);
 }
