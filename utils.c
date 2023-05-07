@@ -6,19 +6,31 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/28 13:25:37 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/06 22:33:07 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/07 22:16:56 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	theres_is_red(char *a)
+int array_lenth(char **a)
 {
-	if(!a)
-		return(1);
-	if(!strcmp(a, "<") || !strcmp(a, "<<") || !strcmp(a, ">") || !strcmp(a, ">>"))
-		return(0);
-	return(1);
+	int i;
+
+	i = 0;
+	while (a[i])
+	{
+		i++;
+	}
+	return (i);
+}
+
+int theres_is_red(char *a)
+{
+	if (!a)
+		return (1);
+	if (!strcmp(a, "<") || !strcmp(a, "<<") || !strcmp(a, ">") || !strcmp(a, ">>"))
+		return (0);
+	return (1);
 }
 
 void print_errors(char *a)
@@ -110,12 +122,13 @@ char **better_parsing(char *a, t_mshel *shel)
 {
 	int i;
 	int j = 0;
+	int	status = 0;
 	int checkpoint;
 	char **new;
 	char *tmp;
 	i = 0;
-	new = ft_calloc(1024,1024);
-	int	herdoc_number = 0;
+	new = ft_calloc(1024, 1024);
+	int herdoc_number = 0;
 
 	while (a[i])
 	{
@@ -129,60 +142,52 @@ char **better_parsing(char *a, t_mshel *shel)
 				if (ft_strchr(substr(a, checkpoint, i - checkpoint), '$'))
 				{
 					tmp = substr(a, checkpoint, i - checkpoint);
-					if (ft_strchr(tmp, '<') ||
-						ft_strchr(tmp, '>'))
+					if (ft_strchr(tmp, '<') || ft_strchr(tmp, '>'))
 					{
-						int	s = 0;
-						while ((tmp[s] != '>' || tmp[s] != '<') && tmp[s])
-							s++;
-						if(s > 0)
-							new[j++] = ft_strtrim(substr(tmp, 0, s), " ");
-						if(tmp[s] == '>' )
+						int s = 0;
+						new[j++] = parsse_redirection(tmp, &s);
+						if (tmp[s])
 						{
-							if (tmp[s + 1] == '>')
+							if (j != 0 && new[j - 1] && !strcmp(new[j - 1], "<<"))
 							{
-								new[j++] = ">>";
-								s++;
+								shel->exapnd_herdoc[herdoc_number] = 1;
+								herdoc_number++;
 							}
-							else
-								new[j++] = ">";
+							new[j++] = ft_strtrim(substr(tmp, s, ft_strlen(tmp) - (s )), " ");
 						}
-						else if(tmp[s] == '<' )
-						{
-							if (tmp[s + 1] == '<')
-							{
-								new[j++] = "<<";
-								s++;
-							}
-							else
-								new[j++] = "<";
-						}
-						if(tmp[s] && tmp[s + 1])
-							new[j++] = ft_strtrim(substr(tmp, s + 1, ft_strlen(tmp) - (s + 1)), " ");
+						shel->status[status++] = 0;
 					}
 					else
 					{
 						if (checkpoint != 0 && a[checkpoint - 1] != ' ')
 						{
 							char *tempo = check_expanding(shel, ft_strtrim(tmp, " "));
-							if(tempo)
+							if (tempo)
 							{
-								if(new[j - 1])
+								if (new[j - 1])
+								{
 									new[j - 1] = ft_strjoin(new[j - 1], tempo);
+									if(ft_strchr(tempo,' '))
+										shel->status[status - 1] = 1;
+								}
 								else
 								{
-									if(ft_strlen(tempo))
+									if (ft_strlen(tempo))
 									{
-										if(j != 0)
+										if (j != 0)
 											new[j - 1] = ft_strdup(tempo);
 										else
 											new[j++] = ft_strdup(tempo);
+										shel->status[status - 1] = 1;
 									}
 									else
-										new[j -1] = NULL;
+									{
+										new[j - 1] = NULL;
+										shel->status[status - 1] = 1;
+									}
 								}
 							}
-							if(j != 0 && new[j - 1] && !strcmp(new[j - 1],"<<"))
+							if (j != 0 && new[j - 1] && !strcmp(new[j - 1], "<<"))
 							{
 								shel->exapnd_herdoc[herdoc_number] = 1;
 								herdoc_number++;
@@ -191,40 +196,66 @@ char **better_parsing(char *a, t_mshel *shel)
 						else
 						{
 							char *tempo = check_expanding(shel, ft_strtrim(tmp, " "));
-							if(tempo && ft_strchr(tempo,' ') && tempo[ft_strlen(tempo) - 1] != ' ' && ft_strlen(tempo) > 1)
+							if (tempo && ft_strchr(tempo, ' '))
 							{
-								char **t = ft_split(tempo, ' ');
-								int	index = 0;
-								if(!t[index])
-									new[j++] = ft_calloc(1,1);
-								if(j != 0 && !strcmp(new[j - 1],"<<"))
+								if (j != 0 && !strcmp(new[j - 1], "<<"))
+								{
 									shel->exapnd_herdoc[herdoc_number] = 1;
+									herdoc_number++;
+								}
+								char **t = ft_split(tempo, ' ');
+								if (array_lenth(t) == 1)
+								{
+									new[j++] = ft_strdup(tempo);
+									shel->status[status++] = 1;
+								}
 								else
 								{
-									while (t[index])
+									if (j != 0 && !theres_is_red(new[j - 1]))
 									{
-										new[j++] = ft_strtrim(t[index]," ");
-										index++;
+										new[j++] = ft_strdup(tempo);
+										shel->status[status++] = 1;
+									}
+									else
+									{
+										int index = 0;
+										if (j != 0 && !strcmp(new[j - 1], "<<"))
+											shel->exapnd_herdoc[herdoc_number] = 1;
+										if (!t[index])
+											new[j++] = ft_calloc(1, 1);
+										else
+										{
+											while (t[index])
+											{
+												new[j++] = ft_strtrim(t[index], " ");
+												shel->status[status++] = 1;
+												index++;
+											}
+										}
 									}
 								}
 							}
 							else if (tempo)
 							{
-								if(j != 0 && !strcmp(new[j - 1],"<<"))
+								if (j != 0 && !strcmp(new[j - 1], "<<"))
 								{
 									shel->exapnd_herdoc[herdoc_number] = 1;
 									herdoc_number++;
 								}
+								// printf("here\n");
 								new[j++] = ft_strdup(tempo);
+								shel->status[status++] = 1;
 							}
 							else
 							{
-								if(j != 0 && !strcmp(new[j - 1],"<<"))
+								if (j != 0 && !strcmp(new[j - 1], "<<"))
 								{
 									shel->exapnd_herdoc[herdoc_number] = 1;
 									herdoc_number++;
 								}
-								new[j++] = ft_calloc(1,1);
+								// printf("here\n");
+								new[j++] = ft_calloc(1, 1);
+								shel->status[status++] = 1;
 							}
 						}
 					}
@@ -234,45 +265,23 @@ char **better_parsing(char *a, t_mshel *shel)
 					tmp = substr(a, checkpoint, i - checkpoint);
 					if (ft_strchr(tmp, '<') ||
 						ft_strchr(tmp, '>'))
-					{
-						int	s = 0;
-						while ((tmp[s] != '>' && tmp[s] != '<') && tmp[s])
-							s++;
-						if(s > 0)
-							new[j++] = ft_strtrim(substr(tmp, 0, s)," ");
-						if(tmp[s] == '>' )
 						{
-							if (tmp[s + 1] && tmp[s + 1] == '>')
+							int s = 0;
+							new[j++] = parsse_redirection(tmp, &s);
+							if (tmp[s])
 							{
-								new[j++] = ">>";
-								s++;
+								if (j != 0 && new[j - 1] && !strcmp(new[j - 1], "<<"))
+								{
+									shel->exapnd_herdoc[herdoc_number] = 1;
+									herdoc_number++;
+								}
+								new[j++] = ft_strtrim(substr(tmp, s, ft_strlen(tmp) - (s)), " ");
 							}
-							else
-								new[j++] = ">";
+							shel->status[status++] = 0;
 						}
-						else if(tmp[s] == '<' )
-						{
-							if (tmp[s + 1] && tmp[s + 1] == '<')
-							{
-								new[j++] = "<<";
-								s++;
-							}
-							else
-								new[j++] = "<";
-						}
-						if(tmp[s + 1])
-						{
-							if(j != 0 && !strcmp(new[j - 1],"<<"))
-							{
-								shel->exapnd_herdoc[herdoc_number] = 1;
-								herdoc_number++;
-							}
-							new[j++] = substr(tmp, s + 1, ft_strlen(tmp) - (s + 1));
-						}
-					}
 					else
 					{
-						if(j != 0 && !strcmp(new[j - 1],"<<"))
+						if (j != 0 && !strcmp(new[j - 1], "<<"))
 						{
 							shel->exapnd_herdoc[herdoc_number] = 1;
 							herdoc_number++;
@@ -280,7 +289,10 @@ char **better_parsing(char *a, t_mshel *shel)
 						if (checkpoint != 0 && a[checkpoint - 1] != ' ')
 							new[j - 1] = ft_strjoin(new[j - 1], substr(a, checkpoint, i - checkpoint));
 						else
-							new[j++] = ft_strtrim(substr(a, checkpoint, i - checkpoint)," ");
+						{
+							new[j++] = ft_strtrim(substr(a, checkpoint, i - checkpoint), " ");
+							shel->status[status++] = 0;
+						}
 					}
 				}
 			}
@@ -293,7 +305,7 @@ char **better_parsing(char *a, t_mshel *shel)
 				i++;
 				while (a[i] != 39 && a[i])
 					i++;
-				if(j != 0 && new[j - 1] && !strcmp(new[j - 1],"<<"))
+				if (j != 0 && new[j - 1] && !strcmp(new[j - 1], "<<"))
 				{
 					shel->exapnd_herdoc[herdoc_number] = 0;
 					herdoc_number++;
@@ -302,14 +314,17 @@ char **better_parsing(char *a, t_mshel *shel)
 					new[j - 1] = ft_strjoin(new[j - 1], substr(a, checkpoint + 1, i - checkpoint - 1));
 				else
 				{
-					if(ft_strlen(substr(a, checkpoint + 1, i - checkpoint - 1)) && j != 0 && theres_is_red(new[j-1]))
+					if (ft_strlen(substr(a, checkpoint + 1, i - checkpoint - 1)) && j != 0 && theres_is_red(new[j - 1]))
 						new[j++] = substr(a, checkpoint + 1, i - checkpoint - 1);
-					else if(!ft_strlen(substr(a, checkpoint + 1, i - checkpoint - 1)) && j != 0 && theres_is_red(new[j-1]))
+					else if (!ft_strlen(substr(a, checkpoint + 1, i - checkpoint - 1)) && j != 0 && theres_is_red(new[j - 1]))
 						new[j++] = substr(a, checkpoint + 1, i - checkpoint - 1);
-					else if(ft_strlen(substr(a, checkpoint + 1, i - checkpoint - 1)))
+					else if (ft_strlen(substr(a, checkpoint + 1, i - checkpoint - 1)))
 						new[j++] = substr(a, checkpoint + 1, i - checkpoint - 1);
-					else if (j!= 0 && !theres_is_red(new[j-1]))
+					else if (j != 0 && !theres_is_red(new[j - 1]))
 						new[j++] = NULL;
+					else
+						new[j++] = ft_calloc(1, 1);
+					shel->status[status++] = 0;
 				}
 			}
 			else if (a[i] == 34)
@@ -317,9 +332,9 @@ char **better_parsing(char *a, t_mshel *shel)
 				i++;
 				while (a[i] != 34 && a[i])
 					i++;
-				if(j != 0 && new[j - 1] && !strcmp(new[j - 1],"<<"))
+				if (j != 0 && new[j - 1] && !strcmp(new[j - 1], "<<"))
 				{
-					shel->exapnd_herdoc[herdoc_number] = 5;
+					shel->exapnd_herdoc[herdoc_number] = 0;
 					herdoc_number++;
 				}
 				if (ft_strchr(substr(a, checkpoint, i - checkpoint), '$') && a[i - 1] != '$')
@@ -327,41 +342,57 @@ char **better_parsing(char *a, t_mshel *shel)
 					char *tet = check_expanding(shel, substr(a, checkpoint + 1, i - 1 - checkpoint));
 					if (checkpoint != 0 && a[checkpoint - 1] != ' ')
 					{
-						if(tet)
+						if (tet)
 							new[j - 1] = ft_strjoin(new[j - 1], tet);
 					}
 					else
 					{
-						if(tet)
+						if (tet)
 							new[j++] = strdup(tet);
 						else
 							new[j++] = NULL;
 					}
+					shel->status[status++] = 1;
 				}
 				else
 				{
 					if (checkpoint != 0 && a[checkpoint - 1] != ' ')
-						new[j - 1] = ft_strjoin(new[j - 1], substr(a, checkpoint + 1, i - checkpoint - 1));
+					{
+						if (j != 0)
+						{
+							char *tp = substr(a, checkpoint + 1, i - checkpoint - 1);
+							if(new[j-  1][0] && tp[0])
+								new[j - 1] = ft_strjoin(new[j - 1], substr(a, checkpoint + 1, i - checkpoint - 1));
+							else
+							{
+								if(!new[j - 1][0])
+									new[j - 1] = NULL;
+							}
+						}
+						else
+						{
+							char *tp = substr(a, checkpoint + 1, i - checkpoint - 1);
+							if(tp)
+								new[j++] = substr(a, checkpoint + 1, i - checkpoint - 1);
+							else
+								new[j++] = ft_calloc(1,1);
+						}
+						// status++;
+					}
 					else
 					{
-						if(ft_strlen(substr(a, checkpoint + 1, i - checkpoint - 1)) && j != 0 && theres_is_red(new[j-1]))
+						if (ft_strlen(substr(a, checkpoint + 1, i - checkpoint - 1)) && j != 0 && theres_is_red(new[j - 1]))
 							new[j++] = substr(a, checkpoint + 1, i - checkpoint - 1);
-						else if(!ft_strlen(substr(a, checkpoint + 1, i - checkpoint - 1)) && j != 0 && theres_is_red(new[j-1]))
+						else if (!ft_strlen(substr(a, checkpoint + 1, i - checkpoint - 1)) && j != 0 && theres_is_red(new[j - 1]))
 							new[j++] = substr(a, checkpoint + 1, i - checkpoint - 1);
-						else if(ft_strlen(substr(a, checkpoint + 1, i - checkpoint - 1)))
+						else if (ft_strlen(substr(a, checkpoint + 1, i - checkpoint - 1)))
 							new[j++] = substr(a, checkpoint + 1, i - checkpoint - 1);
-						else if (j!= 0 && !theres_is_red(new[j-1]))
-						{
+						else if (j != 0 && !theres_is_red(new[j - 1]))
 							new[j++] = NULL;
-						}
+						else
+							new[j++] = ft_calloc(1, 1);
+						shel->status[status++] = 0;
 					}
-				// 	else
-				// {
-				// 	if (checkpoint != 0 && a[checkpoint - 1] != ' ')
-				// 		new[j - 1] = ft_strjoin(new[j - 1], substr(a, checkpoint + 1, i - checkpoint - 1));
-					// else
-					// 	new[j++] = substr(a, checkpoint + 1, i - checkpoint - 1);
-				// }
 				}
 			}
 		}

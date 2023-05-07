@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/12 18:48:02 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/06 21:38:37 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/07 20:15:43 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ int	redirect_input(t_mshel *mshel, int cmd_index, int status)
 	i = 0;
 		while (mshel->cmd[cmd_index]->redirect.input[i])
 		{
-			if(!mshel->cmd[cmd_index]->redirect.in_file[i])
+			if((!mshel->cmd[cmd_index]->redirect.in_file[i] || ft_strchr(mshel->cmd[cmd_index]->redirect.in_file[i], ' ')) && mshel->cmd[cmd_index]->redirect.input_expanded[i] == 1)
 			{
 				mshel->cmd[cmd_index]->error = -3;
 				return(0);
@@ -62,9 +62,10 @@ int	redirect_output(t_mshel *mshel, int cmd_index)
 	i = 0;
 	while (mshel->cmd[cmd_index]->redirect.output[i])
 	{
+		// printf("%d\n",mshel->cmd[cmd_index]->redirect.output_expanded[i]);
 		if(!strcmp(mshel->cmd[cmd_index]->redirect.output[i], ">>"))
 		{
-			if(!mshel->cmd[cmd_index]->redirect.out_file[i])
+			if((!mshel->cmd[cmd_index]->redirect.out_file[i] || ft_strchr(mshel->cmd[cmd_index]->redirect.out_file[i], ' ')) && mshel->cmd[cmd_index]->redirect.output_expanded[i] == 1)
 			{
 				mshel->cmd[cmd_index]->error = -3;
 				return(0);
@@ -79,7 +80,7 @@ int	redirect_output(t_mshel *mshel, int cmd_index)
 		}
 		else
 		{
-			if(!mshel->cmd[cmd_index]->redirect.out_file[i])
+			if((!mshel->cmd[cmd_index]->redirect.out_file[i] || ft_strchr(mshel->cmd[cmd_index]->redirect.out_file[i], ' ')) && mshel->cmd[cmd_index]->redirect.output_expanded[i] == 1)
 			{
 				mshel->cmd[cmd_index]->error = -3;
 				return(0);

@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/16 12:31:38 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/06 22:19:20 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/07 17:22:01 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,12 +97,13 @@ void    execute_shell(char **cmd, t_mshel *shel)
 
 	i = 0;
 	path = ft_getenv(shel, "PATH");
+	// printf("%s\n",cmd[0]);
 	if(path)
 	{
 		tmp_path = ft_split(path, 58);
-		if (cmd[0][0] == '/' || (cmd[0][0] == '.' && cmd[0][1] == '/'))
+		if (cmd[0][0] == '/' || (cmd[0][0] == '.'))
 		{
-			if(execve(cmd[0],cmd,NULL) == -1)
+			if(execve(cmd[0],cmd,shel->env) == -1)
 			{
 				print_errors(ft_strjoin("minishell: ", strerror(errno)));
 				exit(127);
@@ -112,7 +113,7 @@ void    execute_shell(char **cmd, t_mshel *shel)
 		{
 			p = join_cnp(tmp_path[i], cmd[0]);
 			if(!access(p, F_OK))
-				execve(p,cmd,NULL);
+				execve(p,cmd,shel->env);
 			free(p);
 			i++;
 		}

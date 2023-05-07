@@ -6,37 +6,27 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/10 10:46:32 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/06 21:50:49 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/07 22:22:10 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	find_token_and_file(char *a)
+int find_cmd(char **a, t_mshel *shel)
 {
 	int	i;
 
 	i = 0;
+	if(!a[0])
+		return(-2);
 	while (a[i])
 	{
-		i++;
-	}
-
-}
-
-int find_cmd(char **a)
-{
-	int	i;
-
-	i = 0;
-	while (a[i])
-	{
-		if (a[i] && (!strcmp(a[i], ">") || !strcmp(a[i], "<") ||
-				!strcmp(a[i], ">>") || !strcmp(a[i], "<<")))
+		if ((a[i] && (!strcmp(a[i], ">") || !strcmp(a[i], "<") ||
+				!strcmp(a[i], ">>") || !strcmp(a[i], "<<"))) && shel->status[i] == 0)
 		{
 			i += (a[i+1] != NULL) ? 2 : 1;;
 		}
-		else if(a[i] && a[i][0] && !strcmp(a[i], "|") && i != 0)
+		else if(a[i] && a[i][0] && !strcmp(a[i], "|") && i != 0  && shel->status[i] == 0)
 			i++;
 		else if (a[i])
 			return(i);
@@ -54,6 +44,7 @@ void transfer_args(t_lexer *lexer, t_mshel *shel, int j, int k, int flag)
 	i = 0;
 	r = 0;
 	o = 0;
+	start = 0;
 	while (lexer->str[start])
 	{
 		if(start == j)
@@ -69,8 +60,8 @@ void transfer_args(t_lexer *lexer, t_mshel *shel, int j, int k, int flag)
 		}
 		if (lexer->str[start])
 		{
-			if (!strcmp(lexer->str[start], ">") || !strcmp(lexer->str[start], "<") ||
-				!strcmp(lexer->str[start], ">>") || !strcmp(lexer->str[start], "<<"))
+			if ((!strcmp(lexer->str[start], ">") || !strcmp(lexer->str[start], "<") ||
+				!strcmp(lexer->str[start], ">>") || !strcmp(lexer->str[start], "<<")) && shel->status[start] == 0)
 			{
 				if (!strcmp(lexer->str[start], "<"))
 				{
@@ -79,16 +70,19 @@ void transfer_args(t_lexer *lexer, t_mshel *shel, int j, int k, int flag)
 					if (lexer->str[start + 1] && !lexer->str[start + 1][0])
 					{
 						shel->cmd[k]->redirect.in_file[r] = NULL;
+						shel->cmd[k]->redirect.input_expanded[r] = shel->status[start + 1];
 						start += 1;
 					}
 					else if (lexer->str[start + 1])
 					{
 						shel->cmd[k]->redirect.in_file[r] = ft_strdup(lexer->str[start + 1]);
+						shel->cmd[k]->redirect.input_expanded[r] = shel->status[start + 1];
 						start += 2;
 					}
 					else
 					{
-						shel->cmd[k]->redirect.in_file[o] = ft_calloc(1,1);
+						shel->cmd[k]->redirect.in_file[r] = ft_calloc(1,1);
+						shel->cmd[k]->redirect.input_expanded[r] = shel->status[start + 1];
 						start++;
 					}
 					r++;
@@ -106,16 +100,19 @@ void transfer_args(t_lexer *lexer, t_mshel *shel, int j, int k, int flag)
 					if (lexer->str[start + 1] && !lexer->str[start + 1][0])
 					{
 						shel->cmd[k]->redirect.out_file[o] = NULL;
+						shel->cmd[k]->redirect.output_expanded[o] = shel->status[start + 1];
 						start += 1;
 					}
 					else if (lexer->str[start + 1])
 					{
 						shel->cmd[k]->redirect.out_file[o] = ft_strdup(lexer->str[start + 1]);
+						shel->cmd[k]->redirect.output_expanded[o] = shel->status[start + 1];
 						start += 2;
 					}
 					else
 					{
 						shel->cmd[k]->redirect.out_file[o] = ft_calloc(1,1);
+						shel->cmd[k]->redirect.output_expanded[o] = shel->status[start + 1];
 						start++;
 					}
 					o++;
@@ -163,7 +160,9 @@ void transfer_cmd(t_lexer *lexer, t_mshel *shel)
 	{
 		j = 0;
 		shel->cmd[i]->redirect.heredoc.heredoc_number = 0;
-		cmd_position = find_cmd(head->str);
+		cmd_position = find_cmd(head->str, shel);
+		if(cmd_position == -1)
+			shel->cmd[i]->cmd = ft_calloc(1,1);
 		if(cmd_position == -1)
 			shel->cmd[i]->cmd = NULL;
 		else
@@ -177,6 +176,8 @@ void transfer_cmd(t_lexer *lexer, t_mshel *shel)
 		{
 			shel->cmd[i]->redirect.output = malloc(sizeof(char *) * 10);
 			shel->cmd[i]->redirect.out_file = malloc(sizeof(char *) * 10);
+			shel->cmd[i]->redirect.input_expanded = malloc(sizeof(char *) * 10);
+			shel->cmd[i]->redirect.output_expanded = malloc(sizeof(char *) * 10);
 			shel->cmd[i]->redirect.input = malloc(sizeof(char *) * 10);
 			shel->cmd[i]->redirect.in_file = malloc(sizeof(char *) * 10);
 			shel->cmd[i]->redirect.heredoc.cmd = ft_calloc(1,1);

@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/31 12:09:44 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/06 18:44:38 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/07 17:57:26 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -279,15 +279,15 @@ char	*check_expanding(t_mshel *shel,char *str)
 	return(value);
 }
 
-void parser(t_lexer *lst, t_mshel *shel)
+void parser(t_lexer *lst, t_mshel *shel, char *input)
 {
 
+	(void)input;
 	t_lexer *head = lst;
 	int		i = 0;
 
 	while (head)
 	{
-
 		if (check_cmd(head))
 			head->cmd = "empty";
 		check_flag(head);

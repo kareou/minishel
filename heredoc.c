@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/19 01:25:51 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/06 22:34:50 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/07 22:29:24 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,7 @@ void	ft_heredoc(int cmd_index, t_mshel *shel)
 			i++;
 			break;
 		}
-		if(a[0] == '$')
+		if(ft_strchr(a,'$'))
 			holder = check_expanding(shel,a);
 		if((a[0] == '\'' && shel->cmd[cmd_index]->redirect.heredoc.delemiter[i][0] == '\'') || (a[0] == '"' && shel->cmd[cmd_index]->redirect.heredoc.delemiter[i][0] == '"'))
 			holder = remove_quotes(a, a[0]);

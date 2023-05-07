@@ -6,11 +6,27 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 11:22:57 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/06 22:22:36 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/07 22:41:18 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+int	exit_utils(char *a)
+{
+	int	i;
+
+	i = 0;
+	if(a[i] == '-' || a[i] == '+')
+		i++;
+	while (a[i])
+	{
+		if(!ft_isdigit(a[i]))
+			return(0);
+		i++;
+	}
+	return(1);
+}
 
 int	exit_function(char **a, t_mshel *shel)
 {
@@ -26,30 +42,21 @@ int	exit_function(char **a, t_mshel *shel)
 	}
 	else
 	{
-		while (a[0][i])
+		if(!exit_utils(a[i]))
 		{
-			if (a[0][i] && ((!ft_isdigit(a[0][i]) || ( a[0][i] && a[0][0] == '-' && !ft_isdigit(a[0][i])))))
-			{
-				char	*tmp;
-				tmp =  ft_strjoin("minishell: exit: ",a[i]);
-				print_errors(ft_strjoin(tmp,": numeric argument required"));
-				if(shel->cmd_number == 1)
-					return (255);
-				else
-					exit(255);
-			}
-			i++;
+			char	*tmp;
+			tmp =  ft_strjoin("minishell: exit: ",a[i]);
+			print_errors(ft_strjoin(tmp,": numeric argument required"));
+			exit(255);
 		}
+
 		i = 0;
 		while (a[i])
 		{
 			if(i > 0)
 			{
 				print_errors("minishell: exit: too many arguments");
-				if(shel->cmd_number == 1)
-					return (1);
-				else
-					exit(1);
+				exit(1);
 			}
 			i++;
 		}
@@ -57,12 +64,7 @@ int	exit_function(char **a, t_mshel *shel)
 		while (a[i])
 		{
 			if(ft_isdigit(a[i][0]) || (a[i][0] == '-' && ft_isdigit(a[i][1])))
-			{
-				if(shel->cmd_number == 1)
-					return (ft_atoi(a[i]) % 256);
-				else
 					exit(ft_atoi(a[i]) % 256);
-			}
 			i++;
 		}
 	}
@@ -193,9 +195,9 @@ void execute_cmd(t_mshel *shel, int (*pipe)[2], int cmd_index, int status)
 	{
 		if(shel->cmd[cmd_index]->redirect.heredoc.heredoc_number == 0)
 			run_cmd(shel,cmd_index, cmd);
-		else if(shel->cmd[cmd_index]->redirect.heredoc.heredoc_number > 0)
-			ft_heredoc(cmd_index, shel);
 	}
+	if(shel->cmd[cmd_index]->redirect.heredoc.heredoc_number > 0)
+		ft_heredoc(cmd_index, shel);
 	if(shel->cmd_number > 1)
 			exit(0);
 	if(shel->cmd[cmd_index]->error != -1)

@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 11:29:14 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/06 21:37:59 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/07 21:48:00 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,8 @@ typedef	struct s_redr
 	char			**output;
 	char			**in_file;
 	char			**out_file;
+	int				*input_expanded;
+	int				*output_expanded;
 	int				old_output;
 	int				old_input;
 	int				in;
@@ -69,6 +71,7 @@ typedef struct s_mshel
 	int		cmd_number;
 	int		exit_status;
 	int		*exapnd_herdoc;
+	int		*status;
 } t_mshel;
 
 //************* lexer **************
@@ -100,7 +103,7 @@ typedef struct s_lexer
 
 
 //* *********parser****************
-void	parser(t_lexer *lst, t_mshel *shel);
+void	parser(t_lexer *lst, t_mshel *shel, char *input);
 //********************************
 t_lexer	*add_node(char **content, int start, int end);
 void	ft_add_back(t_lexer **lst, t_lexer *new);
@@ -149,5 +152,9 @@ char	**better_parsing(char *a, t_mshel *shel);
 long	checking_overwrite(t_mshel *shel,int cmd_index);
 
 void	error_to_print(int error, char *file);
+
+
+char	*parsse_redirection(char *input, int *s);
+char *substr(char const *s, unsigned int start, size_t len);
 
 #endif

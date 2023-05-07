@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/19 10:56:24 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/06 19:39:07 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/07 14:01:39 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ void    ech_o(t_mshel *shel, int i)
 		j++;
 	while (shel->cmd[i]->args[j])
 	{
-		string_to_print(ft_strtrim(shel->cmd[i]->args[j], " "), shel);
+		string_to_print(shel->cmd[i]->args[j], shel);
 		j++;
 		if(shel->cmd[i]->args[j]  && shel->cmd[i]->args[j][0])
 			write(1," ", 1);
