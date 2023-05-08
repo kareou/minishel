@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strtrim.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: asekkak <asekkak@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/04 15:26:40 by asekkak           #+#    #+#             */
-/*   Updated: 2022/10/19 14:41:51 by asekkak          ###   ########.fr       */
+/*   Updated: 2023/05/08 12:58:44 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,9 +41,17 @@ char	*ft_strtrim(char const *s1, char const *set)
 		return (ft_strdup(s1));
 	last_p = ft_strlen(s1);
 	while (s1[i] && in_set(s1[first_p], set))
+	{
+		if(s1[i + 1] != ' ' || !s1[i + 1])
+			break;
 		first_p++;
+	}
 	while (last_p > first_p && in_set(s1[last_p - 1], set))
+	{
+		if(s1[last_p - 1] != ' ')
+			break;
 		last_p--;
+	}
 	new = malloc(sizeof(char) * (last_p - first_p + 1));
 	if (new == NULL)
 		return (NULL);

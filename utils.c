@@ -6,11 +6,39 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/28 13:25:37 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/07 22:16:56 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/08 16:54:30 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+char	*ft_strtr(char *s1, char *set)
+{
+	int		i;
+	int		len;
+	char	*a;
+
+	i = 0;
+	if (!s1 || !set)
+		return (NULL);
+	while (*s1 && ft_strchr(set, *s1))
+	{
+		if(!ft_strncmp(s1 + 1, " ", 1) || !(s1 + 1))
+			break;
+		s1++;
+	}
+	len = ft_strlen(s1) - 1;
+	while (len && ft_strchr(set, s1[len]))
+	{
+		if(s1[len] != ' ' || len - 1 == 0)
+			break;
+		len--;
+	}
+		// printf("'%c'\n",s1[len]);
+		// printf("'%s'\n",s1);
+	a = ft_substr(s1, 0, len + 1);
+	return (a);
+}
 
 int array_lenth(char **a)
 {
@@ -146,6 +174,8 @@ char **better_parsing(char *a, t_mshel *shel)
 					{
 						int s = 0;
 						new[j++] = parsse_redirection(tmp, &s);
+						// printf("%s\n",new[j - 1]);
+						shel->status[status++] = 0;
 						if (tmp[s])
 						{
 							if (j != 0 && new[j - 1] && !strcmp(new[j - 1], "<<"))
@@ -153,9 +183,9 @@ char **better_parsing(char *a, t_mshel *shel)
 								shel->exapnd_herdoc[herdoc_number] = 1;
 								herdoc_number++;
 							}
-							new[j++] = ft_strtrim(substr(tmp, s, ft_strlen(tmp) - (s )), " ");
+							new[j++] = check_expanding(shel,substr(tmp, s, ft_strlen(tmp) - (s )));
+							shel->status[status++] = 1;
 						}
-						shel->status[status++] = 0;
 					}
 					else
 					{
@@ -166,7 +196,14 @@ char **better_parsing(char *a, t_mshel *shel)
 							{
 								if (new[j - 1])
 								{
-									new[j - 1] = ft_strjoin(new[j - 1], tempo);
+									if(ft_strlen(tempo) > 1)
+									{
+										if(a[i])
+											new[j - 1] = ft_strjoin(new[j - 1], tempo);
+										else
+											new[j - 1] = ft_strjoin(new[j - 1], ft_strtrim(tempo, " "));
+									}
+									// printf("'%s'\n",new[j - 1]);
 									if(ft_strchr(tempo,' '))
 										shel->status[status - 1] = 1;
 								}
@@ -175,10 +212,11 @@ char **better_parsing(char *a, t_mshel *shel)
 									if (ft_strlen(tempo))
 									{
 										if (j != 0)
-											new[j - 1] = ft_strdup(tempo);
+											new[j - 1] = ft_strdup(ft_strtrim(tempo," "));
 										else
 											new[j++] = ft_strdup(tempo);
-										shel->status[status - 1] = 1;
+										if(ft_strchr(tempo, ' ') && !a[i])
+											shel->status[status - 1] = 1;
 									}
 									else
 									{
@@ -206,7 +244,17 @@ char **better_parsing(char *a, t_mshel *shel)
 								char **t = ft_split(tempo, ' ');
 								if (array_lenth(t) == 1)
 								{
-									new[j++] = ft_strdup(tempo);
+									if(a[i] == ' ')
+										new[j++] = ft_strtrim(tempo, " ");
+									else
+									{
+										if(!a[i])
+										{
+											new[j++] = ft_strdup(t[0]);
+										}
+										else
+											new[j++] = ft_strdup(tempo);
+									}
 									shel->status[status++] = 1;
 								}
 								else
@@ -242,7 +290,6 @@ char **better_parsing(char *a, t_mshel *shel)
 									shel->exapnd_herdoc[herdoc_number] = 1;
 									herdoc_number++;
 								}
-								// printf("here\n");
 								new[j++] = ft_strdup(tempo);
 								shel->status[status++] = 1;
 							}
@@ -253,7 +300,6 @@ char **better_parsing(char *a, t_mshel *shel)
 									shel->exapnd_herdoc[herdoc_number] = 1;
 									herdoc_number++;
 								}
-								// printf("here\n");
 								new[j++] = ft_calloc(1, 1);
 								shel->status[status++] = 1;
 							}
@@ -290,7 +336,7 @@ char **better_parsing(char *a, t_mshel *shel)
 							new[j - 1] = ft_strjoin(new[j - 1], substr(a, checkpoint, i - checkpoint));
 						else
 						{
-							new[j++] = ft_strtrim(substr(a, checkpoint, i - checkpoint), " ");
+							new[j++] = substr(a, checkpoint, i - checkpoint);
 							shel->status[status++] = 0;
 						}
 					}
@@ -311,7 +357,13 @@ char **better_parsing(char *a, t_mshel *shel)
 					herdoc_number++;
 				}
 				if (checkpoint != 0 && a[checkpoint - 1] != ' ')
-					new[j - 1] = ft_strjoin(new[j - 1], substr(a, checkpoint + 1, i - checkpoint - 1));
+				{
+					char *store = substr(a, checkpoint + 1, i - checkpoint - 1);
+					// printf("%c\n",a[i]);
+					if(!store[0] && new[j - 1][ft_strlen(new[j - 1]) - 1] == ' ' && !a[i + 1])
+						shel->status[status - 1] = 0;
+					new[j - 1] = ft_strjoin(new[j - 1], store);
+				}
 				else
 				{
 					if (ft_strlen(substr(a, checkpoint + 1, i - checkpoint - 1)) && j != 0 && theres_is_red(new[j - 1]))
@@ -352,7 +404,7 @@ char **better_parsing(char *a, t_mshel *shel)
 						else
 							new[j++] = NULL;
 					}
-					shel->status[status++] = 1;
+					shel->status[status++] = 0;
 				}
 				else
 				{
@@ -361,11 +413,13 @@ char **better_parsing(char *a, t_mshel *shel)
 						if (j != 0)
 						{
 							char *tp = substr(a, checkpoint + 1, i - checkpoint - 1);
-							if(new[j-  1][0] && tp[0])
+							if(new[j -  1][0] && tp[0])
 								new[j - 1] = ft_strjoin(new[j - 1], substr(a, checkpoint + 1, i - checkpoint - 1));
 							else
 							{
-								if(!new[j - 1][0])
+								if(tp[0])
+									new[j - 1] = ft_strdup(tp);
+								else if(!new[j - 1][0])
 									new[j - 1] = NULL;
 							}
 						}
@@ -377,7 +431,6 @@ char **better_parsing(char *a, t_mshel *shel)
 							else
 								new[j++] = ft_calloc(1,1);
 						}
-						// status++;
 					}
 					else
 					{
@@ -398,6 +451,7 @@ char **better_parsing(char *a, t_mshel *shel)
 		}
 		i++;
 	}
+	// printf("'%s'\n",new[j - 1]);
 	new[j] = NULL;
 	return (new);
 }

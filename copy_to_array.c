@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/10 10:46:32 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/07 22:22:10 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/08 16:53:04 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 int find_cmd(char **a, t_mshel *shel)
 {
 	int	i;
+	(void) shel;
 
 	i = 0;
 	if(!a[0])
@@ -22,11 +23,11 @@ int find_cmd(char **a, t_mshel *shel)
 	while (a[i])
 	{
 		if ((a[i] && (!strcmp(a[i], ">") || !strcmp(a[i], "<") ||
-				!strcmp(a[i], ">>") || !strcmp(a[i], "<<"))) && shel->status[i] == 0)
+				!strcmp(a[i], ">>") || !strcmp(a[i], "<<"))))
 		{
 			i += (a[i+1] != NULL) ? 2 : 1;;
 		}
-		else if(a[i] && a[i][0] && !strcmp(a[i], "|") && i != 0  && shel->status[i] == 0)
+		else if(a[i] && a[i][0] && !strcmp(a[i], "|") && i != 0)
 			i++;
 		else if (a[i])
 			return(i);
@@ -55,7 +56,7 @@ void transfer_args(t_lexer *lexer, t_mshel *shel, int j, int k, int flag)
 		}
 		if(lexer->str[start])
 		{
-			if (strcmp(lexer->str[start], "|") == 0 && start != 0)
+			if (strcmp(lexer->str[start], "|") == 0 && start != 0 && shel->status[start] == 0)
 				start++;
 		}
 		if (lexer->str[start])
