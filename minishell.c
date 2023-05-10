@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 11:28:46 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/08 16:43:59 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/10 15:50:45 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,7 @@ void lexer(char *input, t_mshel *shel)
 
 	while (string[i])
 	{
-		if (ft_strncmp(string[i], "|", 2) == 0)
+		if (ft_strncmp(string[i], "|", 2) == 0 && shel->status[i] == 0)
 		{
 			newNode = add_node(string, j, i + 1);
 			ft_add_back(&lst, newNode);

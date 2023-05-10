@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 11:22:57 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/07 22:41:18 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/10 15:55:40 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,7 @@ char **join_arrays(t_mshel *shel, int index, char *cmd)
 			i++;
 		else if(shel->cmd[index]->args[i])
 		{
-        	new_cmd[j++] = ft_strtrim(ft_strdup(shel->cmd[index]->args[i])," ");
+        	new_cmd[j++] = ft_strdup(shel->cmd[index]->args[i]);
         	i++;
 		}
     }

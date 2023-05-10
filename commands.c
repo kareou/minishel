@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/16 12:31:38 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/07 17:22:01 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/10 22:04:22 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ int c_d(t_mshel *shel, char *a)
 {
 	int ret;
 
-	if (!a || !ft_strncmp(a, "~", 1))
+	if (!a)
 	{
 		a = ft_getenv(shel, "HOME");
 		if(!a)
@@ -52,6 +52,8 @@ int c_d(t_mshel *shel, char *a)
 			return (1);
 		}
 	}
+	if(!ft_strncmp(a, "~", 1))
+		a = ft_strjoin("/Users/",ft_getenv(shel, "USER"));
 	ret = chdir(a);
 	if (ret == -1)
 	{
@@ -97,7 +99,6 @@ void    execute_shell(char **cmd, t_mshel *shel)
 
 	i = 0;
 	path = ft_getenv(shel, "PATH");
-	// printf("%s\n",cmd[0]);
 	if(path)
 	{
 		tmp_path = ft_split(path, 58);

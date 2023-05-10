@@ -6,11 +6,24 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/28 13:25:37 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/08 16:54:30 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/10 21:50:55 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+int	check_space_place(char *a)
+{
+	int i;
+
+	i = 1;
+	if(a[0] == ' ' && a[ft_strlen(a)] == ' ')
+		return(0);
+	if(a[0] == ' ')
+		return(1);
+	else
+		return(2);
+}
 
 char	*ft_strtr(char *s1, char *set)
 {
@@ -23,15 +36,15 @@ char	*ft_strtr(char *s1, char *set)
 		return (NULL);
 	while (*s1 && ft_strchr(set, *s1))
 	{
-		if(!ft_strncmp(s1 + 1, " ", 1) || !(s1 + 1))
-			break;
+		// if(!ft_strncmp(s1 + 1, " ", 1) || !(s1 + 1))
+		// 	break;
 		s1++;
 	}
 	len = ft_strlen(s1) - 1;
-	while (len && ft_strchr(set, s1[len]))
+	while (len > 0 && ft_strchr(set, s1[len]))
 	{
-		if(s1[len] != ' ' || len - 1 == 0)
-			break;
+		// if(s1[len] != ' ' || len - 1 == 0)
+		// 	break;
 		len--;
 	}
 		// printf("'%c'\n",s1[len]);
@@ -185,6 +198,7 @@ char **better_parsing(char *a, t_mshel *shel)
 							}
 							new[j++] = check_expanding(shel,substr(tmp, s, ft_strlen(tmp) - (s )));
 							shel->status[status++] = 1;
+
 						}
 					}
 					else
@@ -201,9 +215,13 @@ char **better_parsing(char *a, t_mshel *shel)
 										if(a[i])
 											new[j - 1] = ft_strjoin(new[j - 1], tempo);
 										else
-											new[j - 1] = ft_strjoin(new[j - 1], ft_strtrim(tempo, " "));
+										{
+											if(new[j - 1][0])
+												new[j - 1] = ft_strjoin(new[j - 1], ft_strtrim(tempo, " "));
+											else
+												new[j - 1] = ft_strtr(tempo, " ");
+										}
 									}
-									// printf("'%s'\n",new[j - 1]);
 									if(ft_strchr(tempo,' '))
 										shel->status[status - 1] = 1;
 								}
@@ -212,11 +230,24 @@ char **better_parsing(char *a, t_mshel *shel)
 									if (ft_strlen(tempo))
 									{
 										if (j != 0)
-											new[j - 1] = ft_strdup(ft_strtrim(tempo," "));
+										{
+											char *l = ft_strtr(tempo," ");
+											if(l[0])
+												new[j - 1] = l;
+											else
+												new[j - 1] = tempo;
+											if(ft_strchr(tempo, ' ') && !a[i])
+												shel->status[status - 1] = 1;
+										}
 										else
-											new[j++] = ft_strdup(tempo);
-										if(ft_strchr(tempo, ' ') && !a[i])
-											shel->status[status - 1] = 1;
+										{
+											if(a[i])
+												new[j++] = ft_strdup(tempo);
+											else
+												new[j++] = ft_strtrim(tempo, " ");
+											if(ft_strchr(tempo, ' ') && !a[i])
+												shel->status[status - 1] = 1;
+										}
 									}
 									else
 									{
@@ -245,7 +276,7 @@ char **better_parsing(char *a, t_mshel *shel)
 								if (array_lenth(t) == 1)
 								{
 									if(a[i] == ' ')
-										new[j++] = ft_strtrim(tempo, " ");
+										new[j++] = ft_strtr(tempo, " ");
 									else
 									{
 										if(!a[i])
@@ -322,6 +353,7 @@ char **better_parsing(char *a, t_mshel *shel)
 									herdoc_number++;
 								}
 								new[j++] = ft_strtrim(substr(tmp, s, ft_strlen(tmp) - (s)), " ");
+								shel->status[status++] = 0;
 							}
 							shel->status[status++] = 0;
 						}
@@ -359,10 +391,18 @@ char **better_parsing(char *a, t_mshel *shel)
 				if (checkpoint != 0 && a[checkpoint - 1] != ' ')
 				{
 					char *store = substr(a, checkpoint + 1, i - checkpoint - 1);
-					// printf("%c\n",a[i]);
 					if(!store[0] && new[j - 1][ft_strlen(new[j - 1]) - 1] == ' ' && !a[i + 1])
+					{
 						shel->status[status - 1] = 0;
-					new[j - 1] = ft_strjoin(new[j - 1], store);
+						new[j - 1] = ft_strtrim(new[j - 1], " ");
+					}
+					else
+					{
+						if(ft_strchr(new[j - 1],' ') && check_space_place(new[j - 1]) == 1)
+							new[j - 1] = ft_strjoin(ft_strtr(new[j - 1], " "), store);
+						else
+							new[j - 1] = ft_strjoin(new[j - 1], store);
+					}
 				}
 				else
 				{
@@ -414,7 +454,15 @@ char **better_parsing(char *a, t_mshel *shel)
 						{
 							char *tp = substr(a, checkpoint + 1, i - checkpoint - 1);
 							if(new[j -  1][0] && tp[0])
-								new[j - 1] = ft_strjoin(new[j - 1], substr(a, checkpoint + 1, i - checkpoint - 1));
+							{
+								if(ft_strchr(new[j - 1], ' ') && check_space_place(new[j - 1]) == 1)
+								{
+									// printf("heer->'%s'\n",ft_strtr(new[j - 1], " "));
+									new[j - 1] = ft_strjoin(ft_strtr(new[j - 1], " "), substr(a, checkpoint + 1, i - checkpoint - 1));
+								}
+								else
+									new[j - 1] = ft_strjoin(new[j - 1], substr(a, checkpoint + 1, i - checkpoint - 1));
+							}
 							else
 							{
 								if(tp[0])

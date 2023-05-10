@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/10 10:46:32 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/08 16:53:04 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/10 15:56:57 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ int find_cmd(char **a, t_mshel *shel)
 	while (a[i])
 	{
 		if ((a[i] && (!strcmp(a[i], ">") || !strcmp(a[i], "<") ||
-				!strcmp(a[i], ">>") || !strcmp(a[i], "<<"))))
+				!strcmp(a[i], ">>") || !strcmp(a[i], "<<"))) && shel->status[i] == 0)
 		{
 			i += (a[i+1] != NULL) ? 2 : 1;;
 		}
