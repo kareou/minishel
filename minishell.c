@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 11:28:46 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/10 15:50:45 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/11 12:08:41 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,17 +84,6 @@ void lexer(char *input, t_mshel *shel)
 	t_lexer *lst = NULL;
 	char **string = calloc(1024, 1024);
 	string = better_parsing(input, shel);
-	int k = 0;
-	while (string[k])
-	{
-		// printf("%s\n",string[k]);
-		// if((ft_strchr(string[k], ' ') && !ft_strchr(string[k], ' ') + 1 && ft_strlen(string[k]) > 1 && string[k][ft_strlen(string[k]) - 2] == '='))
-		// 	string[k] = string[k];
-		// else
-		// 	string[k] = ft_strtrim(string[k], " ");
-		k++;
-	}
-
 	while (string[i])
 	{
 		if (ft_strncmp(string[i], "|", 2) == 0 && shel->status[i] == 0)

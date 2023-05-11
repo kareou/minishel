@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/31 12:09:44 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/08 16:23:58 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/11 17:23:23 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -242,10 +242,7 @@ char	*check_expanding(t_mshel *shel,char *str)
 					else
 					{
 						if(placeholder && placeholder[0])
-						{
-							// printf("%s\n",placeholder);
 							value = ft_strdup(placeholder);
-						}
 					}
 				}
 				else

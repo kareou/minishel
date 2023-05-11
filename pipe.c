@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/27 22:48:51 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/04 22:11:35 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/11 17:27:49 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,8 +62,8 @@ int redirect_to_pipe(t_mshel *shel , int (*pipe)[2], int i, int red_status, int 
 			}
 			if(red_status == 3)
 			{
-				if(checking_overwrite(shel, i) < 0)
-					return (0);
+				// if(checking_overwrite(shel, i) < 0)
+				// 	return (0);
 				redirect_output(shel,i);
 			}
 			if (red_status != 3)
