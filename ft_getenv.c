@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/13 18:29:39 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/06 18:43:31 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/13 13:23:55 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,9 +27,11 @@ void	ft_unset_utils(t_mshel *shel, char *variable)
 	j = 0;
 	while (shel->env[i])
 	{
-		if(!ft_strncmp(shel->env[i],variable, ft_strlen(variable)) && (shel->env[i][ft_strlen(variable)] == '=' || !shel->env[i][ft_strlen(variable)]))
+		if (!ft_strncmp(shel->env[i], variable, ft_strlen(variable))
+			&& (shel->env[i][ft_strlen(variable)] == '='
+			|| !shel->env[i][ft_strlen(variable)]))
 			i++;
-		if(shel->env[i])
+		if (shel->env[i])
 		{
 			new_env[j] = ft_strdup(shel->env[i]);
 			i++;
@@ -40,14 +42,14 @@ void	ft_unset_utils(t_mshel *shel, char *variable)
 	i = 0;
 	while (shel->x_env[i])
 		i++;
-	new_x_env =  malloc(sizeof(char *) * i);
+	new_x_env = malloc(sizeof(char *) * i);
 	i = 0;
 	j = 0;
 	while (shel->x_env[i])
 	{
-		if(!ft_strncmp(shel->x_env[i],variable, ft_strlen(variable)))
+		if (!ft_strncmp(shel->x_env[i], variable, ft_strlen(variable)))
 			i++;
-		if(shel->x_env[i])
+		if (shel->x_env[i])
 		{
 			new_x_env[j] = ft_strdup(shel->x_env[i]);
 			i++;
@@ -81,11 +83,11 @@ char	*ft_getenv(t_mshel *mshel, char *a)
 	a_len = ft_strlen(a);
 	while (mshel->env[i])
 	{
-		if(!ft_strncmp(a, mshel->env[i], a_len) && mshel->env[i][a_len] == '=')
+		if (!ft_strncmp(a, mshel->env[i], a_len) && mshel->env[i][a_len] == '=')
 		{
 			return_value = ft_strchr(mshel->env[i], '=');
 			return_value++;
-			return(return_value);
+			return (return_value);
 		}
 		i++;
 	}

@@ -6,26 +6,11 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 11:28:46 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/11 12:08:41 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/13 18:02:59 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-// int	check_trim_permission(char	*a)
-// {
-// 	int	i = 0;
-
-// 	while (a[i])
-// 	{
-// 		if(a[i] == '=' && a[i + 1] == ' ')
-// 			return(0);
-// 		else if ()
-
-// 		i++;
-// 	}
-
-// }
 
 void ft_sringcpy(char **str, char *content)
 {
@@ -82,7 +67,7 @@ void lexer(char *input, t_mshel *shel)
 	j = 0;
 	t_lexer *newNode;
 	t_lexer *lst = NULL;
-	char **string = calloc(1024, 1024);
+	char **string;
 	string = better_parsing(input, shel);
 	while (string[i])
 	{
@@ -99,6 +84,13 @@ void lexer(char *input, t_mshel *shel)
 		newNode = add_node(string, j, i);
 		ft_add_back(&lst, newNode);
 	}
+	i = 0;
+	while (string[i])
+	{
+		free(string[i]);
+		i++;
+	}
+	free(string);
 	parser(lst, shel, input);
 }
 
@@ -215,20 +207,13 @@ void minishell(char **env)
 	{
 		input = readline("minishell> ");
 		if (input == NULL)
-		{
-			//  printf("exit\n");
 			exit(shel->exit_status);
-		}
-		// if (ft_strncmp(input, "exit",5) == 0) {
-		//     printf("Exiting...\n");
-		//     break;
-		// }
 		add_history(input);
 		if (check_syntax(ft_strtrim(input, " ")))
 			lexer(input, shel);
 		else
 			shel->exit_status = 2;
-		free(input);
+		// free(input);
 	}
 }
 

@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/11 11:55:25 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/11 21:30:02 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/13 18:17:16 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,12 +61,15 @@ void	handel_sing_quote(t_mshel *shel, char *a, int *i,char **new, int *j)
 	}
 	else
 	{
-		if (ft_strlen(substr(a, checkpoint + 1, (*i) - checkpoint - 1)) && (*j) != 0 && theres_is_red(new[(*j) - 1]))
-			new[(*j)++] = substr(a, checkpoint + 1, (*i) - checkpoint - 1);
-		else if (!ft_strlen(substr(a, checkpoint + 1, (*i) - checkpoint - 1)) && (*j) != 0 && theres_is_red(new[(*j) - 1]))
-			new[(*j)++] = substr(a, checkpoint + 1, (*i) - checkpoint - 1);
-		else if (ft_strlen(substr(a, checkpoint + 1, (*i) - checkpoint - 1)))
-			new[(*j)++] = substr(a, checkpoint + 1, (*i) - checkpoint - 1);
+		char *tmp;
+
+		tmp = substr(a, checkpoint + 1, (*i) - checkpoint - 1);
+		if (ft_strlen(tmp) && (*j) != 0 && theres_is_red(new[(*j) - 1]))
+			new[(*j)++] = tmp;
+		else if (!ft_strlen(tmp) && (*j) != 0 && theres_is_red(new[(*j) - 1]))
+			new[(*j)++] = tmp;
+		else if (ft_strlen(tmp))
+			new[(*j)++] = tmp;
 		else if ((*j) != 0 && !theres_is_red(new[(*j) - 1]))
 			new[(*j)++] = NULL;
 		else
@@ -295,33 +298,36 @@ void	hande_no_quoet_expand_n(t_mshel *shel, char **new, int *j, char *a, int che
 {
 	char *tmp = substr(a, checkpoint, i - checkpoint);
 	if (ft_strchr(tmp, '<') || ft_strchr(tmp, '>'))
+	{
+		int s = 0;
+		new[(*j)++] = parsse_redirection(tmp, &s);
+		if (tmp[s])
 		{
-			int s = 0;
-			new[(*j)++] = parsse_redirection(tmp, &s);
-			if (tmp[s])
+			if ((*j) != 0 && new[(*j) - 1] && !strcmp(new[(*j) - 1], "<<"))
 			{
-				if ((*j) != 0 && new[(*j) - 1] && !strcmp(new[(*j) - 1], "<<"))
-				{
-					shel->exapnd_herdoc[shel->herdoc_number] = 1;
-					shel->herdoc_number++;
-				}
-				new[(*j)++] = ft_strtrim(substr(tmp, s, ft_strlen(tmp) - (s)), " ");
-				shel->status[shel->stat++] = 0;
+				shel->exapnd_herdoc[shel->herdoc_number] = 1;
+				shel->herdoc_number++;
 			}
+			char *to_befreed = substr(tmp, s, ft_strlen(tmp) - (s));
+			new[(*j)++] = ft_strtrim(to_befreed, " ");
 			shel->status[shel->stat++] = 0;
+			free(to_befreed);
 		}
+		shel->status[shel->stat++] = 0;
+	}
 	else
 	{
+		char *to_befreed =  substr(a, checkpoint, i - checkpoint);
 		if ((*j) != 0 && !strcmp(new[(*j) - 1], "<<"))
 		{
 			shel->exapnd_herdoc[shel->herdoc_number] = 1;
 			shel->herdoc_number++;
 		}
 		if (checkpoint != 0 && a[checkpoint - 1] != ' ')
-			new[(*j) - 1] = ft_strjoin(new[(*j) - 1], substr(a, checkpoint, i - checkpoint));
+			new[(*j) - 1] = ft_strjoin(new[(*j) - 1],to_befreed);
 		else
 		{
-			new[(*j)++] = substr(a, checkpoint, i - checkpoint);
+			new[(*j)++] = to_befreed;
 			shel->status[shel->stat++] = 0;
 		}
 	}

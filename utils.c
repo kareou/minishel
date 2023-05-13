@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/28 13:25:37 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/11 21:37:50 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/13 18:26:56 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,27 +106,38 @@ void	print_errors(char *a)
 // 	return ((long)n - (long)size);
 // }
 
-int	word_count(char *s)
+void	no_quot_part(char *a, t_mshel *shel, int *i, int *j, char **new)
 {
-	size_t	i;
-	int		trgr;
-	int		count;
+	char	*tmp;
+	char	*tempo;
+	int		checkpoint;
 
-	i = 0;
-	trgr = 0;
-	count = 0;
-	while (s[i])
+	checkpoint = *i;
+	while (a[(*i)] != '\0' && a[(*i)] != 39 && a[(*i)] != 34 && a[(*i)] != ' ')
+		(*i)++;
+	if ((*i) > checkpoint)
 	{
-		if (s[i] != ' ' && trgr == 0)
+		tmp = substr(a, checkpoint, (*i) - checkpoint);
+		if (ft_strchr(tmp, '$'))
 		{
-			count++;
-			trgr = 1;
+			if (ft_strchr(tmp, '<') || ft_strchr(tmp, '>'))
+				hendel_no_quotes(shel, new, j, tmp);
+			else
+			{
+				char *wazbi = ft_strtrim(tmp, " ");
+				tempo = check_expanding(shel, wazbi);
+				if (checkpoint != 0 && a[checkpoint - 1] != ' ')
+					handel_no_quotes_expand(tempo, new, j, a[(*i)], shel);
+				else
+					hendel_no_quotes_spand_j(shel, tempo, new, j,
+							a[(*i)]);
+				free(wazbi);
+			}
 		}
-		if (s[i] == ' ' && trgr > 0)
-			trgr = 0;
-		i++;
+		else
+			hande_no_quoet_expand_n(shel, new, j, a, checkpoint, *i);
+		free(tmp);
 	}
-	return (count);
 }
 
 char	*substr(char const *s, unsigned int start, size_t len)
@@ -157,42 +168,17 @@ char	**better_parsing(char *a, t_mshel *shel)
 	int		j;
 	int		checkpoint;
 	char	**new;
-	char	*tmp;
-	char	*tempo;
 
 	j = 0;
-	shel->stat = 0;
 	i = 0;
+	shel->stat = 0;
 	new = ft_calloc(1024, 1024);
 	shel->herdoc_number = 0;
 	while (a[i])
 	{
 		checkpoint = i;
 		if (a[i] != 39 && a[i] != 34)
-		{
-			while (a[i] != '\0' && a[i] != 39 && a[i] != 34 && a[i] != ' ')
-				i++;
-			if (i > checkpoint)
-			{
-				if (ft_strchr(substr(a, checkpoint, i - checkpoint), '$'))
-				{
-					tmp = substr(a, checkpoint, i - checkpoint);
-					if (ft_strchr(tmp, '<') || ft_strchr(tmp, '>'))
-						hendel_no_quotes(shel, new, &j, tmp);
-					else
-					{
-						tempo = check_expanding(shel, ft_strtrim(tmp, " "));
-						if (checkpoint != 0 && a[checkpoint - 1] != ' ')
-							handel_no_quotes_expand(tempo, new, &j, a[i], shel);
-						else
-							hendel_no_quotes_spand_j(shel, tempo, new, &j,
-								a[i]);
-					}
-				}
-				else
-					hande_no_quoet_expand_n(shel, new, &j, a, checkpoint, i);
-			}
-		}
+			no_quot_part(a, shel, &i, &j, new);
 		checkpoint = i;
 		if (a[i] == 39 || a[i] == 34)
 		{
@@ -201,8 +187,8 @@ char	**better_parsing(char *a, t_mshel *shel)
 			else if (a[i] == 34)
 				handel_double_quotes(shel, a, &i, &j, new);
 		}
-		if(a[i] == 0)
-			break;
+		if (a[i] == 0)
+			break ;
 		i++;
 	}
 	new[j] = NULL;

@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 11:22:57 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/11 17:18:33 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/13 17:57:42 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,10 +132,17 @@ void	run_cmd(t_mshel *shel, int cmd_index, char *cmd)
 	{
 		if (shel->cmd_number == 1)
 		{
+			char **l = join_arrays(shel, cmd_index, cmd);
 			if (fork() == 0)
-				execute_shell(join_arrays(shel, cmd_index, cmd), shel);
+				execute_shell(l, shel);
 			else
 				wait(&status);
+			int i = 0;
+			while (l[i])
+			{
+				free(l[i++]);
+			}
+			free(l);
 			exited = WEXITSTATUS(status);
 		}
 		else
@@ -193,7 +200,7 @@ void	execute_cmd(t_mshel *shel, int (*pipe)[2], int cmd_index, int status)
 		}
 	}
 	if (red_status != 1 && status != 0)
-		close_all_pipes(pipe, shel->cmd_number);
+		open_n_close_p(pipe, 1, shel->cmd_number - 1);
 	if (shel->cmd[cmd_index]->cmd)
 	{
 		if (shel->cmd[cmd_index]->redirect.heredoc.heredoc_number == 0)

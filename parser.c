@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/31 12:09:44 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/11 17:23:23 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/13 18:05:02 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -172,7 +172,6 @@ int check_redirection(t_lexer *lexer)
 			int match = ft_strncmp(lexer->str[i], choose_red(lexer->str[i]), strlen(choose_red(lexer->str[i]) + 1));
 			if (match == 0)
 			{
-				// printf("SET table at %d\n", j);
 				lexer->table[j].redire = 1;
 				lexer->table[j].name_file = lexer->str[i + 1];
 				lexer->table[j].token_redire = choose_red(lexer->str[i]);
@@ -203,6 +202,7 @@ char	*check_expanding(t_mshel *shel,char *str)
 	int		i;
 	int		dollar_index;
 	char	**tmp;
+	char *y;
 	char	*value;
 	char	*placeholder;
 
@@ -274,7 +274,11 @@ char	*check_expanding(t_mshel *shel,char *str)
 
 				value = ft_strjoin(value, ft_getenv(shel, ft_substr(tmp[i], 0, k)));
 				if (tmp[i][k])
-					value = ft_strjoin(value, ft_substr(tmp[i], k, ft_strlen(tmp[i])));
+				{
+					y = ft_strjoin(value, ft_substr(tmp[i], k, ft_strlen(tmp[i])));
+					free(value);
+					value = y;
+				}
 			}
 			i++;
 		}

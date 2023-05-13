@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/07 18:52:28 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/07 22:09:04 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/13 13:26:41 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 char	*parsse_redirection(char *input, int *s)
 {
 	char	*new;
+
 	while ((input[*s] == '>' || input[*s] == '<') && input[*s])
 		(*s)++;
 	if (*s > 0)
@@ -39,5 +40,5 @@ char	*parsse_redirection(char *input, int *s)
 		else
 			new = "<";
 	}
-	return(new);
+	return (new);
 }

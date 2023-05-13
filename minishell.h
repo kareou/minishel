@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 11:29:14 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/11 17:19:54 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/13 15:58:52 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,20 @@
 # include <sys/stat.h>
 # include <sys/types.h>
 # include <unistd.h>
+
+//************* index **************
+
+typedef struct s_index
+{
+	int	i_utils;
+	int	j_utils;
+	int	i_copy;
+	int	j_copy;
+	int	r_copy;
+	int	o_copy;
+} t_index;
+
+//***********************************
 
 typedef struct s_heredoc
 {
@@ -169,5 +183,5 @@ void				hendel_no_quotes_spand_j(t_mshel *shel, char *tempo,
 void				hande_no_quoet_expand_n(t_mshel *shel, char **new, int *j,
 						char *a, int check_point, int i);
 int					array_lenth(char **a);
-
+void				open_n_close_p(int (*pipes)[2], int cs, int p_number);
 #endif
