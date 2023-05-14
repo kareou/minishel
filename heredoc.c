@@ -6,15 +6,15 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/19 01:25:51 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/13 15:15:27 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/14 13:38:31 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-char	*remove_quotes(char *a, int c)
+char *remove_quotes(char *a, int c)
 {
-	char	*returned;
+	char *returned;
 
 	if (c == '\'')
 		returned = ft_strtrim(a, "'");
@@ -23,9 +23,9 @@ char	*remove_quotes(char *a, int c)
 	return (returned);
 }
 
-void	open_n_close_p(int (*pipes)[2], int cs, int p_number)
+void open_n_close_p(int (*pipes)[2], int cs, int p_number)
 {
-	int	i;
+	int i;
 
 	i = 0;
 	if (cs == 0)
@@ -46,15 +46,15 @@ void	open_n_close_p(int (*pipes)[2], int cs, int p_number)
 		}
 	}
 }
-void	printf_in_pipe(char *a, int fd)
+void printf_in_pipe(char *a, int fd)
 {
-	int	i;
+	int i;
 
 	i = 0;
 	if (!a)
 	{
 		write(fd, "\n", 1);
-		return ;
+		return;
 	}
 	while (a[i])
 	{
@@ -64,10 +64,10 @@ void	printf_in_pipe(char *a, int fd)
 	write(fd, "\n", 1);
 }
 
-void	read_line(t_mshel *shel, int cmd_index, int *i, int (*pipes)[2])
+void read_line(t_mshel *shel, int cmd_index, int *i, int (*pipes)[2])
 {
-	char	*a;
-	char	*holder;
+	char *a;
+	char *holder;
 
 	holder = NULL;
 	while (1)
@@ -76,18 +76,14 @@ void	read_line(t_mshel *shel, int cmd_index, int *i, int (*pipes)[2])
 		if (a == NULL)
 		{
 			(*i)++;
-			break ;
+			break;
 		}
 		if (ft_strchr(a, '$'))
 			holder = check_expanding(shel, a);
-		if ((a[0] == '\''
-				&& shel->cmd[cmd_index]->redirect.heredoc.delemiter[(*i)][0] == '\'')
-			|| (a[0] == '"'
-				&& shel->cmd[cmd_index]->redirect.heredoc.delemiter[(*i)][0] == '"'))
+		if ((a[0] == '\'' && shel->cmd[cmd_index]->redirect.heredoc.delemiter[(*i)][0] == '\'') || (a[0] == '"' && shel->cmd[cmd_index]->redirect.heredoc.delemiter[(*i)][0] == '"'))
 			holder = remove_quotes(a, a[0]);
-		if (!strcmp(a, shel->cmd[cmd_index]->redirect.heredoc.delemiter[(*i)])
-			|| (holder && !strcmp(holder,
-					shel->cmd[cmd_index]->redirect.heredoc.delemiter[(*i)])))
+		if (!strcmp(a, shel->cmd[cmd_index]->redirect.heredoc.delemiter[(*i)]) || (holder && !strcmp(holder,
+																									 shel->cmd[cmd_index]->redirect.heredoc.delemiter[(*i)])))
 		{
 			a = NULL;
 			(*i)++;
@@ -95,7 +91,7 @@ void	read_line(t_mshel *shel, int cmd_index, int *i, int (*pipes)[2])
 		if ((*i) >= shel->cmd[cmd_index]->redirect.heredoc.heredoc_number)
 		{
 			free(a);
-			break ;
+			break;
 		}
 		if (a)
 		{
@@ -107,15 +103,15 @@ void	read_line(t_mshel *shel, int cmd_index, int *i, int (*pipes)[2])
 		free(a);
 	}
 }
-void	run_cmd_h(t_mshel *shel, int cmd_index, int duin, int du,
-		int redirection, int (*pipes)[2], int i)
+void run_cmd_h(t_mshel *shel, int cmd_index, int duin, int du,
+			   int redirection, int (*pipes)[2], int i)
 {
-	int	tmp_fd;
-	int	h_number;
+	int tmp_fd;
+	int h_number;
 
 	h_number = shel->cmd[cmd_index]->redirect.heredoc.heredoc_number;
 	if (shel->cmd_number > 1 || (redirection && shel->cmd[cmd_index]->error ==
-			-1))
+													-1))
 	{
 		if ((redirection == 2 || redirection == 1) && cmd_index == 0)
 		{
@@ -125,8 +121,7 @@ void	run_cmd_h(t_mshel *shel, int cmd_index, int duin, int du,
 		dup2(du, STDOUT_FILENO);
 		close(du);
 	}
-	if (redirection != 2 && redirection != 1 && shel->cmd[cmd_index]->error ==
-		-1)
+	if (redirection != 2 && redirection != 1 && shel->cmd[cmd_index]->error == -1)
 	{
 		tmp_fd = dup(STDIN_FILENO);
 		if (i != 0)
@@ -138,29 +133,28 @@ void	run_cmd_h(t_mshel *shel, int cmd_index, int duin, int du,
 	open_n_close_p(pipes, 1, h_number);
 	if (shel->cmd[cmd_index]->cmd && shel->cmd[cmd_index]->error == -1)
 		run_cmd(shel, cmd_index, shel->cmd[cmd_index]->cmd);
-	if (shel->cmd[cmd_index]->redirect.old_input != 0 && (redirection != 2
-			|| redirection != 1) && shel->cmd[cmd_index]->error == -1)
+	if (shel->cmd[cmd_index]->redirect.old_input != 0 && (redirection != 2 || redirection != 1) && shel->cmd[cmd_index]->error == -1)
 		dup2(tmp_fd, STDIN_FILENO);
 }
 
-void	ft_heredoc(int cmd_index, t_mshel *shel)
+void ft_heredoc(int cmd_index, t_mshel *shel)
 {
-	int		h_number;
-	int		du = 0;
-	int		duin = 0;
-	int		pipes[shel->cmd[cmd_index]->redirect.heredoc.heredoc_number][2];
-	int		i;
-	char	*holder;
-	int		redirection;
+	int h_number;
+	int du = 0;
+	int duin = 0;
+	int pipes[shel->cmd[cmd_index]->redirect.heredoc.heredoc_number][2];
+	int i;
+	char *holder;
+	int redirection;
 
 	h_number = shel->cmd[cmd_index]->redirect.heredoc.heredoc_number;
 	i = 0;
 	holder = NULL;
 	open_n_close_p(pipes, 0, h_number);
 	redirection = check_redirect_place(shel->cmd[cmd_index]->redirect.in,
-			shel->cmd[cmd_index]->redirect.out);
+									   shel->cmd[cmd_index]->redirect.out);
 	if (shel->cmd_number > 1 || (redirection && shel->cmd[cmd_index]->error ==
-			-1))
+													-1))
 	{
 		if ((redirection == 2 || redirection == 1))
 		{

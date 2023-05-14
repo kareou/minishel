@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 11:29:14 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/13 15:58:52 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/14 13:40:25 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,20 +27,6 @@
 # include <sys/stat.h>
 # include <sys/types.h>
 # include <unistd.h>
-
-//************* index **************
-
-typedef struct s_index
-{
-	int	i_utils;
-	int	j_utils;
-	int	i_copy;
-	int	j_copy;
-	int	r_copy;
-	int	o_copy;
-} t_index;
-
-//***********************************
 
 typedef struct s_heredoc
 {
@@ -87,6 +73,7 @@ typedef struct s_mshel
 	int				*status;
 	int				stat;
 	int				herdoc_number;
+	char			*store_input;
 }					t_mshel;
 
 //************* lexer **************
@@ -184,4 +171,32 @@ void				hande_no_quoet_expand_n(t_mshel *shel, char **new, int *j,
 						char *a, int check_point, int i);
 int					array_lenth(char **a);
 void				open_n_close_p(int (*pipes)[2], int cs, int p_number);
+void	free_lexer(t_lexer *lexer);
+void	free_all(t_mshel *shel, int size);
+int	exit_function(char **a, t_mshel *shel);
+
+
+//check_syntax.c
+int check_syntax(char *str);
+
+
+//lexer part
+void lexer(char *input, t_mshel *shel);
+
+//node_lk_list
+t_lexer *add_node(char **content, int start, int end);
+void ft_add_back(t_lexer **lst, t_lexer *new);
+
+
+// file parser/parser.c
+int check_redirection(t_lexer *lexer);
+int check_flag(t_lexer *head);
+int check_cmd(t_lexer *head);
+int check_pipe(t_lexer *head);
+char *choose_red(char *red);
+char *all_cmd(char *cmd);
+char *all_redir(char *redir);
+ int	find_dollar(char *a);
+ char *check_expanding(t_mshel *shel, char *str);
+
 #endif

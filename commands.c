@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/16 12:31:38 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/13 17:58:28 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/14 13:33:17 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,14 @@ void	p_w_d(void)
 		i++;
 	}
 	write(1, "\n", 1);
+}
+
+void	free_path(char **path, int i)
+{
+	while (path[i])
+	{
+		free(path[i++]);
+	}
 }
 
 char	*join_cnp(char *a, char *b)

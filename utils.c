@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/28 13:25:37 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/13 18:26:56 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/13 20:48:14 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,14 +124,16 @@ void	no_quot_part(char *a, t_mshel *shel, int *i, int *j, char **new)
 				hendel_no_quotes(shel, new, j, tmp);
 			else
 			{
-				char *wazbi = ft_strtrim(tmp, " ");
-				tempo = check_expanding(shel, wazbi);
+				char *trimed = ft_strtrim(tmp, " ");
+				tempo = check_expanding(shel, trimed);
+				free(trimed);
 				if (checkpoint != 0 && a[checkpoint - 1] != ' ')
 					handel_no_quotes_expand(tempo, new, j, a[(*i)], shel);
 				else
 					hendel_no_quotes_spand_j(shel, tempo, new, j,
 							a[(*i)]);
-				free(wazbi);
+				if(tempo)
+					free(tempo);
 			}
 		}
 		else

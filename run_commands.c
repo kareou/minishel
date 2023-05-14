@@ -6,70 +6,11 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 11:22:57 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/13 17:57:42 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/14 13:16:22 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-int	exit_utils(char *a)
-{
-	int	i;
-
-	i = 0;
-	if (a[i] == '-' || a[i] == '+')
-		i++;
-	while (a[i])
-	{
-		if (!ft_isdigit(a[i]))
-			return (0);
-		i++;
-	}
-	return (1);
-}
-
-int	exit_function(char **a, t_mshel *shel)
-{
-	int		i;
-	char	*tmp;
-
-	i = 0;
-	if (!a[0])
-		exit(shel->exit_status);
-	else
-	{
-		if (!exit_utils(a[i]))
-		{
-			tmp = ft_strjoin("minishell: exit: ", a[i]);
-			print_errors(ft_strjoin(tmp, ": numeric argument required"));
-			if (shel->cmd_number == 1)
-				return (255);
-			else
-				exit(255);
-		}
-		i = 0;
-		while (a[i])
-		{
-			if (i > 0)
-			{
-				print_errors("minishell: exit: too many arguments");
-				if (shel->cmd_number == 1)
-					return (1);
-				else
-					exit(1);
-			}
-			i++;
-		}
-		i = 0;
-		while (a[i])
-		{
-			if (ft_isdigit(a[i][0]) || (a[i][0] == '-' && ft_isdigit(a[i][1])))
-				exit(ft_atoi(a[i]) % 256);
-			i++;
-		}
-	}
-	return (0);
-}
 
 char	**join_arrays(t_mshel *shel, int index, char *cmd)
 {
@@ -104,9 +45,34 @@ char	**join_arrays(t_mshel *shel, int index, char *cmd)
 	return (new_cmd);
 }
 
-void	run_cmd(t_mshel *shel, int cmd_index, char *cmd)
+int	run_non_builtin(t_mshel *shel, int cmd_index, char *cmd)
 {
 	int	status;
+	int	exited;
+
+	exited = 0;
+	if (shel->cmd_number == 1)
+	{
+		char **l = join_arrays(shel, cmd_index, cmd);
+		if (fork() == 0)
+			execute_shell(l, shel);
+		else
+			wait(&status);
+		int i = 0;
+		while (l[i])
+		{
+			free(l[i++]);
+		}
+		free(l);
+		exited = WEXITSTATUS(status);
+	}
+	else
+		execute_shell(join_arrays(shel, cmd_index, cmd), shel);
+	return (exited);
+}
+
+void	run_cmd(t_mshel *shel, int cmd_index, char *cmd)
+{
 	int	exited;
 
 	exited = 0;
@@ -129,35 +95,12 @@ void	run_cmd(t_mshel *shel, int cmd_index, char *cmd)
 	!ft_strncmp(cmd, "/usr/bin/env", ft_strlen("/usr/bin/env"))))
 		print_env(shel, 0);
 	else
-	{
-		if (shel->cmd_number == 1)
-		{
-			char **l = join_arrays(shel, cmd_index, cmd);
-			if (fork() == 0)
-				execute_shell(l, shel);
-			else
-				wait(&status);
-			int i = 0;
-			while (l[i])
-			{
-				free(l[i++]);
-			}
-			free(l);
-			exited = WEXITSTATUS(status);
-		}
-		else
-			execute_shell(join_arrays(shel, cmd_index, cmd), shel);
-	}
+		exited = run_non_builtin(shel, cmd_index, cmd);
 	shel->exit_status = exited;
 }
 
-void	execute_cmd(t_mshel *shel, int (*pipe)[2], int cmd_index, int status)
+int	start_redirect_pipe(t_mshel *shel, int cmd_index, int red_status, int status, int (*pipe)[2])
 {
-	char	*cmd;
-	int		red_status;
-
-	cmd = shel->cmd[cmd_index]->cmd;
-	red_status = check_redirect_place(shel->cmd[cmd_index]->redirect.in, shel->cmd[cmd_index]->redirect.out);
 	if (!redirect_to_pipe(shel, pipe, cmd_index, red_status, status))
 	{
 		if (!status && shel->cmd[cmd_index]->redirect.heredoc.heredoc_number == 0)
@@ -167,49 +110,45 @@ void	execute_cmd(t_mshel *shel, int (*pipe)[2], int cmd_index, int status)
 			else
 				error_to_print(shel->cmd[cmd_index]->error, shel->cmd[cmd_index]->error_file);
 			shel->exit_status = 1;
-			return ;
+			return(1);
 		}
 		else if (status)
 			exit(1);
 	}
-	if (red_status == 1)
+	return (0);
+}
+
+int	redirect_in_out(t_mshel *shel, int cmd_index,int status)
+{
+	if (!redirect_input(shel, cmd_index, 0))
 	{
-		if (!redirect_input(shel, cmd_index, 0))
-		{
-			if (shel->cmd[cmd_index]->error == -3)
-				print_errors("minishell: ambiguous redirect");
-			else
-				error_to_print(shel->cmd[cmd_index]->error, shel->cmd[cmd_index]->error_file);
-			shel->exit_status = 1;
-			if (status)
-				exit(1);
-			else
-				return ;
-		}
-		if (!redirect_output(shel, cmd_index))
-		{
-			if (shel->cmd[cmd_index]->error == -3)
-				print_errors("minishell: ambiguous redirect");
-			else
-				error_to_print(shel->cmd[cmd_index]->error, shel->cmd[cmd_index]->error_file);
-			shel->exit_status = 1;
-			if (status)
-				exit(1);
-			else
-				return ;
-		}
+		if (shel->cmd[cmd_index]->error == -3)
+			print_errors("minishell: ambiguous redirect");
+		else
+			error_to_print(shel->cmd[cmd_index]->error, shel->cmd[cmd_index]->error_file);
+		shel->exit_status = 1;
+		if (status)
+			exit(1);
+		else
+			return (1);
 	}
-	if (red_status != 1 && status != 0)
-		open_n_close_p(pipe, 1, shel->cmd_number - 1);
-	if (shel->cmd[cmd_index]->cmd)
+	if (!redirect_output(shel, cmd_index))
 	{
-		if (shel->cmd[cmd_index]->redirect.heredoc.heredoc_number == 0)
-			run_cmd(shel, cmd_index, cmd);
+		if (shel->cmd[cmd_index]->error == -3)
+			print_errors("minishell: ambiguous redirect");
+		else
+			error_to_print(shel->cmd[cmd_index]->error, shel->cmd[cmd_index]->error_file);
+		shel->exit_status = 1;
+		if (status)
+			exit(1);
+		else
+			return (1);
 	}
-	if (shel->cmd[cmd_index]->redirect.heredoc.heredoc_number > 0)
-		ft_heredoc(cmd_index, shel);
-	if (shel->cmd_number > 1)
-		exit(0);
+	return (0);
+}
+
+int	reset_redirection(t_mshel *shel, int cmd_index, int status)
+{
 	if (shel->cmd[cmd_index]->error != -1)
 	{
 		if (shel->cmd[cmd_index]->error == -3)
@@ -220,7 +159,7 @@ void	execute_cmd(t_mshel *shel, int (*pipe)[2], int cmd_index, int status)
 		if (status)
 			exit(1);
 		else
-			return ;
+			return(1);
 	}
 	if (shel->cmd[cmd_index]->redirect.old_output != 0)
 	{
@@ -232,4 +171,32 @@ void	execute_cmd(t_mshel *shel, int (*pipe)[2], int cmd_index, int status)
 		if (dup2(shel->cmd[cmd_index]->redirect.old_input, STDIN_FILENO) == -1)
 			perror("minishell :");
 	}
+	return (0);
+}
+
+void	execute_cmd(t_mshel *shel, int (*pipe)[2], int cmd_index, int status)
+{
+	int		red_status;
+
+	red_status = check_redirect_place(shel->cmd[cmd_index]->redirect.in, shel->cmd[cmd_index]->redirect.out);
+	if(start_redirect_pipe(shel, cmd_index, red_status, status, pipe))
+		return ;
+	if (red_status == 1)
+	{
+		if(redirect_in_out(shel, cmd_index, status))
+			return ;
+	}
+	if (red_status != 1 && status != 0)
+		open_n_close_p(pipe, 1, shel->cmd_number - 1);
+	if (shel->cmd[cmd_index]->cmd)
+	{
+		if (shel->cmd[cmd_index]->redirect.heredoc.heredoc_number == 0)
+			run_cmd(shel, cmd_index, shel->cmd[cmd_index]->cmd);
+	}
+	if (shel->cmd[cmd_index]->redirect.heredoc.heredoc_number > 0)
+		ft_heredoc(cmd_index, shel);
+	if (shel->cmd_number > 1)
+		exit(0);
+	if(reset_redirection(shel, cmd_index, status))
+		return ;
 }

@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/11 11:55:25 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/13 18:17:16 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/14 12:59:04 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,9 @@ void	hendel_no_quotes(t_mshel *shel,char **new, int *j, char *tmp)
 			shel->exapnd_herdoc[shel->herdoc_number] = 1;
 			shel->herdoc_number++;
 		}
-		new[(*j)++] = check_expanding(shel,substr(tmp, s, ft_strlen(tmp) - (s )));
+		char *pointer = substr(tmp, s, ft_strlen(tmp) - (s ));
+		new[(*j)++] = check_expanding(shel,pointer);
+		free(pointer);
 		shel->status[shel->stat++] = 1;
 	}
 }
@@ -78,85 +80,6 @@ void	handel_sing_quote(t_mshel *shel, char *a, int *i,char **new, int *j)
 	}
 }
 
-void	handel_double_quotes(t_mshel *shel, char *a, int *i, int *j, char **new)
-{
-	int	checkpoint;
-
-	checkpoint = *i;
-	(*i)++;
-	while (a[*i] != 34 && a[*i])
-		(*i)++;
-	if ((*j) != 0 && new[(*j) - 1] && !strcmp(new[(*j) - 1], "<<"))
-	{
-		shel->exapnd_herdoc[shel->herdoc_number] = 0;
-		shel->herdoc_number++;
-	}
-	if (ft_strchr(substr(a, checkpoint, (*i) - checkpoint), '$') && a[(*i) - 1] != '$')
-	{
-		char *tet = check_expanding(shel, substr(a, checkpoint + 1, (*i) - 1 - checkpoint));
-		if (checkpoint != 0 && a[checkpoint - 1] != ' ')
-		{
-			if (tet)
-				new[(*j) - 1] = ft_strjoin(new[(*j) - 1], tet);
-		}
-		else
-		{
-			if (tet)
-				new[(*j)++] = strdup(tet);
-			else
-				new[(*j)++] = NULL;
-		}
-		shel->status[shel->stat++] = 0;
-	}
-	else
-	{
-		if (checkpoint != 0 && a[checkpoint - 1] != ' ')
-		{
-			if ((*j) != 0)
-			{
-				char *tp = substr(a, checkpoint + 1, (*i) - checkpoint - 1);
-				if(new[(*j) -  1][0] && tp[0])
-				{
-					if(ft_strchr(new[(*j) - 1], ' ') && check_space_place(new[(*j) - 1]) == 1 && shel->status[shel->stat - 1] == 1)
-						new[(*j) - 1] = ft_strjoin(ft_strtr(new[(*j) - 1], " "), substr(a, checkpoint + 1, (*i) - checkpoint - 1));
-					else
-						new[(*j) - 1] = ft_strjoin(new[(*j) - 1], substr(a, checkpoint + 1, (*i) - checkpoint - 1));
-				}
-				else
-				{
-					if(tp[0])
-						new[(*j) - 1] = ft_strdup(tp);
-					else if(!new[(*j) - 1][0])
-						new[(*j) - 1] = NULL;
-				}
-			}
-			else
-			{
-				char *tp = substr(a, checkpoint + 1, (*i) - checkpoint - 1);
-				if(tp)
-					new[(*j)++] = substr(a, checkpoint + 1, (*i) - checkpoint - 1);
-				else
-					new[(*j)++] = ft_calloc(1,1);
-			}
-		}
-		else
-		{
-			if (ft_strlen(substr(a, checkpoint + 1, (*i) - checkpoint - 1)) && (*j) != 0 && theres_is_red(new[(*j) - 1]))
-				new[(*j)++] = substr(a, checkpoint + 1, (*i) - checkpoint - 1);
-			else if (!ft_strlen(substr(a, checkpoint + 1, (*i) - checkpoint - 1)) && (*j) != 0 && theres_is_red(new[(*j) - 1]))
-				new[(*j)++] = substr(a, checkpoint + 1, (*i) - checkpoint - 1);
-			else if (ft_strlen(substr(a, checkpoint + 1, (*i) - checkpoint - 1)))
-				new[(*j)++] = substr(a, checkpoint + 1, (*i) - checkpoint - 1);
-			else if ((*j) != 0 && !theres_is_red(new[(*j) - 1]))
-				new[(*j)++] = NULL;
-			else
-				new[(*j)++] = ft_calloc(1, 1);
-			shel->status[shel->stat++] = 0;
-		}
-	}
-}
-
-
 void	handel_no_quotes_expand(char *tempo, char **new, int *j, char a, t_mshel *shel)
 {
 	if (tempo)
@@ -170,7 +93,10 @@ void	handel_no_quotes_expand(char *tempo, char **new, int *j, char a, t_mshel *s
 				else
 				{
 					if(new[(*j) - 1][0])
-						new[(*j) - 1] = ft_strjoin(new[(*j) - 1], ft_strtrim(tempo, " "));
+					{
+						char *tmp = ft_strtrim(tempo, " ");
+						new[(*j) - 1] = ft_strjoin(new[(*j) - 1], tmp);
+					}
 					else
 						new[(*j) - 1] = ft_strtr(tempo, " ");
 				}
@@ -190,9 +116,9 @@ void	handel_no_quotes_expand(char *tempo, char **new, int *j, char a, t_mshel *s
 					else
 					{
 						if(!a)
-							new[(*j) - 1] = tempo;
+							new[(*j) - 1] = ft_strdup(tempo);
 						else
-						new[(*j) - 1] = l;
+							new[(*j) - 1] = l;
 					}
 					if(ft_strchr(tempo, ' ') && !a)
 						shel->status[shel->stat - 1] = 1;
@@ -324,11 +250,15 @@ void	hande_no_quoet_expand_n(t_mshel *shel, char **new, int *j, char *a, int che
 			shel->herdoc_number++;
 		}
 		if (checkpoint != 0 && a[checkpoint - 1] != ' ')
+		{
 			new[(*j) - 1] = ft_strjoin(new[(*j) - 1],to_befreed);
+			free(to_befreed);
+		}
 		else
 		{
 			new[(*j)++] = to_befreed;
 			shel->status[shel->stat++] = 0;
 		}
 	}
+	free(tmp);
 }
