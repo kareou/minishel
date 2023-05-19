@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/14 11:10:30 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/14 11:29:53 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/19 20:15:12 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,75 +47,80 @@ void	d_quotes_j(char *tp, char **new, t_mshel *shel, int *j)
 	}
 }
 
-void	d_quote_expand(char *a, int checkpoint, int *i, int *j, char **new, t_mshel *shel)
+void	d_quote_expand(char *a, int checkpoint, t_indexs *index, char **new,
+		t_mshel *shel)
 {
 	char	*exp;
 	char	*tet;
 
-	exp = substr(a, checkpoint + 1, (*i) - 1 - checkpoint);
+	exp = substr(a, checkpoint + 1, index->i - 1 - checkpoint);
 	tet = check_expanding(shel, exp);
 	free(exp);
 	if (checkpoint != 0 && a[checkpoint - 1] != ' ')
 	{
 		if (tet)
-			new[(*j) - 1] = ft_strjoin(new[(*j) - 1], tet);
+			new[index->j - 1] = ft_strjoin(new[index->j - 1], tet);
 	}
 	else
 	{
 		if (tet)
-			new[(*j)++] = strdup(tet);
+			new[index->j++] = strdup(tet);
 		else
-			new[(*j)++] = NULL;
+			new[index->j++] = NULL;
 	}
 	if (tet)
 		free(tet);
 	shel->status[shel->stat++] = 0;
 }
 
-void	d_quote_copy(t_mshel *shel, int *j, int checkpoint, int *i, char *a, char **new)
+void	d_quote_copy(t_mshel *shel, t_indexs *index, int checkpoint, char *a)
 {
 	char	*to_be_freed;
 
-	to_be_freed = substr(a, checkpoint + 1, (*i) - checkpoint - 1);
-	if (ft_strlen(to_be_freed) && (*j) != 0 && theres_is_red(new[(*j) - 1]))
-		new[(*j)++] = ft_strdup(to_be_freed);
-	else if (!ft_strlen(to_be_freed) && (*j) != 0 && theres_is_red(new[(*j) - 1]))
-		new[(*j)++] = ft_strdup(to_be_freed);
+	to_be_freed = substr(a, checkpoint + 1, index->i - checkpoint - 1);
+	if (ft_strlen(to_be_freed) && index->j != 0 && \
+	theres_is_red(index->new[index->j - 1]))
+		index->new[index->j++] = ft_strdup(to_be_freed);
+	else if (!ft_strlen(to_be_freed) && index->j != 0 && \
+	theres_is_red(index->new[index->j - 1]))
+		index->new[index->j++] = ft_strdup(to_be_freed);
 	else if (ft_strlen(to_be_freed))
-		new[(*j)++] = ft_strdup(to_be_freed);
-	else if ((*j) != 0 && !theres_is_red(new[(*j) - 1]))
-		new[(*j)++] = NULL;
+		index->new[index->j++] = ft_strdup(to_be_freed);
+	else if (index->j != 0 && !theres_is_red(index->new[index->j - 1]))
+		index->new[index->j++] = NULL;
 	else
-		new[(*j)++] = ft_calloc(1, 1);
+		index->new[index->j++] = ft_calloc(1, 1);
 	free(to_be_freed);
 	shel->status[shel->stat++] = 0;
 }
 
-void	handel_double_quotes(t_mshel *shel, char *a, int *i, int *j, char **new)
+void	handel_double_quotes(t_mshel *shel, char *a, t_indexs *index)
 {
 	int		checkpoint;
 	char	*tp;
 
-	checkpoint = *i;
-	(*i)++;
-	while (a[*i] != 34 && a[*i])
-		(*i)++;
-	if ((*j) != 0 && new[(*j) - 1] && !strcmp(new[(*j) - 1], "<<"))
+	checkpoint = index->i;
+	index->i++;
+	while (a[index->i] != 34 && a[index->i])
+		index->i++;
+	if (index->j != 0 && index->new[index->j - 1] && \
+	!ft_strcmp(index->new[index->j - 1], "<<"))
 	{
 		shel->exapnd_herdoc[shel->herdoc_number] = 0;
 		shel->herdoc_number++;
 	}
-	if (ft_strchr(substr(a, checkpoint, (*i) - checkpoint), '$') && a[(*i) - 1] != '$')
-		d_quote_expand(a, checkpoint, i, j, new, shel);
+	if (ft_strchr(substr(a, checkpoint, index->i - checkpoint), '$') \
+	&& a[index->i - 1] != '$')
+		d_quote_expand(a, checkpoint, index, index->new, shel);
 	else
 	{
 		if (checkpoint != 0 && a[checkpoint - 1] != ' ')
 		{
-			tp = substr(a, checkpoint + 1, (*i) - checkpoint - 1);
-			d_quotes_j(tp, new, shel, j);
+			tp = substr(a, checkpoint + 1, index->i - checkpoint - 1);
+			d_quotes_j(tp, index->new, shel, &index->j);
 			free(tp);
 		}
 		else
-			d_quote_copy(shel, j, checkpoint, i, a, new);
+			d_quote_copy(shel, index, checkpoint, a);
 	}
 }

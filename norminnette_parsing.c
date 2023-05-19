@@ -6,193 +6,215 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/11 11:55:25 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/14 12:59:04 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/19 21:10:39 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	hendel_no_quotes(t_mshel *shel,char **new, int *j, char *tmp)
+void	hendel_no_quotes(t_mshel *shel, char **new, int *j, char *tmp)
 {
+	int		s;
+	char	*pointer;
 
-	int s = 0;
+	s = 0;
 	new[(*j)++] = parsse_redirection(tmp, &s);
 	shel->status[shel->stat++] = 0;
 	if (tmp[s])
 	{
-		if ((*j) != 0 && new[(*j) - 1] && !strcmp(new[(*j) - 1], "<<"))
+		if ((*j) != 0 && new[(*j) - 1] && !ft_strcmp(new[(*j) - 1], "<<"))
 		{
 			shel->exapnd_herdoc[shel->herdoc_number] = 1;
 			shel->herdoc_number++;
 		}
-		char *pointer = substr(tmp, s, ft_strlen(tmp) - (s ));
-		new[(*j)++] = check_expanding(shel,pointer);
+		pointer = substr(tmp, s, ft_strlen(tmp) - (s));
+		new[(*j)++] = check_expanding(shel, pointer);
 		free(pointer);
 		shel->status[shel->stat++] = 1;
 	}
 }
 
-void	handel_sing_quote(t_mshel *shel, char *a, int *i,char **new, int *j)
+void	handel_sing_quote(t_mshel *shel, char *a, t_indexs *index)
 {
-	int	checkpoint;
+	int		checkpoint;
+	char	*store;
+	char	*tmp;
 
-	checkpoint = (*i);
-	(*i)++;
-	while (a[(*i)] != 39 && a[(*i)])
-		(*i)++;
-	if ((*j) != 0 && new[(*j) - 1] && !strcmp(new[(*j) - 1], "<<"))
+	checkpoint = index->i;
+	index->i++;
+	while (a[index->i] != 39 && a[index->i])
+		index->i++;
+	if (index->j != 0 && index->new[index->j - 1]
+		&& !ft_strcmp(index->new[index->j - 1], "<<"))
 	{
 		shel->exapnd_herdoc[shel->herdoc_number] = 0;
 		shel->herdoc_number++;
 	}
 	if (checkpoint != 0 && a[checkpoint - 1] != ' ')
 	{
-		char *store = substr(a, checkpoint + 1, (*i) - checkpoint - 1);
-		if(!store[0] && new[(*j) - 1][ft_strlen(new[(*j) - 1]) - 1] == ' ' && !a[(*i) + 1])
+		store = substr(a, checkpoint + 1, index->i - checkpoint - 1);
+		if (!store[0] && index->new[index->j - 1][ft_strlen(index->new[index->j
+					- 1]) - 1] == ' ' && !a[index->i + 1])
 		{
 			shel->status[shel->stat - 1] = 0;
-			new[(*j) - 1] = ft_strtrim(new[(*j) - 1], " ");
+			index->new[index->j - 1] = ft_strtrim(index->new[index->j - 1],
+					" ");
 		}
 		else
 		{
-			if(ft_strchr(new[(*j) - 1],' ') && check_space_place(new[(*j) - 1]) == 1)
-				new[(*j) - 1] = ft_strjoin(ft_strtr(new[(*j) - 1], " "), store);
+			if (ft_strchr(index->new[index->j - 1], ' ')
+				&& check_space_place(index->new[index->j - 1]) == 1)
+				index->new[index->j
+					- 1] = ft_strjoin(ft_strtr(index->new[index->j - 1], " "),
+						store);
 			else
-				new[(*j) - 1] = ft_strjoin(new[(*j) - 1], store);
+				index->new[index->j - 1] = ft_strjoin(index->new[index->j - 1],
+						store);
 		}
 	}
 	else
 	{
-		char *tmp;
-
-		tmp = substr(a, checkpoint + 1, (*i) - checkpoint - 1);
-		if (ft_strlen(tmp) && (*j) != 0 && theres_is_red(new[(*j) - 1]))
-			new[(*j)++] = tmp;
-		else if (!ft_strlen(tmp) && (*j) != 0 && theres_is_red(new[(*j) - 1]))
-			new[(*j)++] = tmp;
+		tmp = substr(a, checkpoint + 1, index->i - checkpoint - 1);
+		if (ft_strlen(tmp) && index->j != 0 && theres_is_red(index->new[index->j
+					- 1]))
+			index->new[index->j++] = tmp;
+		else if (!ft_strlen(tmp) && index->j != 0
+			&& theres_is_red(index->new[index->j - 1]))
+			index->new[index->j++] = tmp;
 		else if (ft_strlen(tmp))
-			new[(*j)++] = tmp;
-		else if ((*j) != 0 && !theres_is_red(new[(*j) - 1]))
-			new[(*j)++] = NULL;
+			index->new[index->j++] = tmp;
+		else if (index->j != 0 && !theres_is_red(index->new[index->j - 1]))
+			index->new[index->j++] = NULL;
 		else
-			new[(*j)++] = ft_calloc(1, 1);
+			index->new[index->j++] = ft_calloc(1, 1);
 		shel->status[shel->stat++] = 0;
 	}
 }
 
-void	handel_no_quotes_expand(char *tempo, char **new, int *j, char a, t_mshel *shel)
+void	handel_no_quotes_expand(char *tempo, t_indexs *index, char a,
+		t_mshel *shel)
 {
+	char	*tmp;
+	char	*l;
+
 	if (tempo)
 	{
-		if (new[(*j) - 1])
+		if (index->new[index->j - 1])
 		{
-			if(ft_strlen(tempo) > 1)
+			if (ft_strlen(tempo) > 1)
 			{
-				if(a)
-					new[(*j) - 1] = ft_strjoin(new[(*j) - 1], tempo);
+				if (a)
+					index->new[index->j - 1] = ft_strjoin(index->new[index->j
+							- 1], tempo);
 				else
 				{
-					if(new[(*j) - 1][0])
+					if (index->new[index->j - 1][0])
 					{
-						char *tmp = ft_strtrim(tempo, " ");
-						new[(*j) - 1] = ft_strjoin(new[(*j) - 1], tmp);
+						tmp = ft_strtrim(tempo, " ");
+						index->new[index->j
+							- 1] = ft_strjoin(index->new[index->j - 1], tmp);
 					}
 					else
-						new[(*j) - 1] = ft_strtr(tempo, " ");
+						index->new[index->j - 1] = ft_strtr(tempo, " ");
 				}
 			}
-			if(ft_strchr(tempo,' '))
+			if (ft_strchr(tempo, ' '))
 				shel->status[shel->stat - 1] = 1;
 		}
 		else
 		{
 			if (ft_strlen(tempo))
 			{
-				if ((*j) != 0)
+				if (index->j != 0)
 				{
-					char *l = ft_strtr(tempo," ");
-					if(l[0])
-						new[(*j) - 1] = l;
+					l = ft_strtr(tempo, " ");
+					if (l[0])
+						index->new[index->j - 1] = l;
 					else
 					{
-						if(!a)
-							new[(*j) - 1] = ft_strdup(tempo);
+						if (!a)
+							index->new[index->j - 1] = ft_strdup(tempo);
 						else
-							new[(*j) - 1] = l;
+							index->new[index->j - 1] = l;
 					}
-					if(ft_strchr(tempo, ' ') && !a)
+					if (ft_strchr(tempo, ' ') && !a)
 						shel->status[shel->stat - 1] = 1;
 				}
 				else
 				{
-					if(a)
-						new[(*j)++] = ft_strdup(tempo);
+					if (a)
+						index->new[index->j++] = ft_strdup(tempo);
 					else
-						new[(*j)++] = ft_strtrim(tempo, " ");
-					if(ft_strchr(tempo, ' ') && !a)
+						index->new[index->j++] = ft_strtrim(tempo, " ");
+					if (ft_strchr(tempo, ' ') && !a)
 						shel->status[shel->stat - 1] = 1;
 				}
 			}
 			else
 			{
-				new[(*j) - 1] = NULL;
+				index->new[index->j - 1] = NULL;
 				shel->status[shel->stat - 1] = 1;
 			}
 		}
 	}
-	if ((*j) != 0 && new[(*j) - 1] && !strcmp(new[(*j) - 1], "<<"))
+	if (index->j != 0 && index->new[index->j - 1]
+		&& !ft_strcmp(index->new[index->j - 1], "<<"))
 	{
 		shel->exapnd_herdoc[shel->herdoc_number] = 1;
 		shel->herdoc_number++;
 	}
 }
 
-void	hendel_no_quotes_spand_j(t_mshel *shel , char *tempo, char **new, int *j, char a)
+void	hendel_no_quotes_spand_j(t_mshel *shel, char *tempo, t_indexs *index,
+		char a)
 {
+	char	**t;
+	int		ind;
+
 	if (tempo && ft_strchr(tempo, ' '))
 	{
-		if ((*j) != 0 && !strcmp(new[(*j) - 1], "<<"))
+		if (index->j != 0 && !ft_strcmp(index->new[index->j - 1], "<<"))
 		{
 			shel->exapnd_herdoc[shel->herdoc_number] = 1;
 			shel->herdoc_number++;
 		}
-		char **t = ft_split(tempo, ' ');
+		t = ft_split(tempo, ' ');
 		if (array_lenth(t) == 1)
 		{
-			if(a == ' ')
-				new[(*j)++] = ft_strtr(tempo, " ");
+			if (a == ' ')
+				index->new[index->j++] = ft_strtr(tempo, " ");
 			else
 			{
-				if(!a)
+				if (!a)
 				{
-					new[(*j)++] = ft_strdup(t[0]);
+					index->new[index->j++] = ft_strdup(t[0]);
 				}
 				else
-					new[(*j)++] = ft_strdup(tempo);
+					index->new[index->j++] = ft_strdup(tempo);
 			}
 			shel->status[shel->stat++] = 1;
 		}
 		else
 		{
-			if ((*j) != 0 && !theres_is_red(new[(*j) - 1]))
+			if (index->j != 0 && !theres_is_red(index->new[index->j - 1]))
 			{
-				new[(*j)++] = ft_strdup(tempo);
+				index->new[index->j++] = ft_strdup(tempo);
 				shel->status[shel->stat++] = 1;
 			}
 			else
 			{
-				int index = 0;
-				if ((*j) != 0 && !strcmp(new[(*j) - 1], "<<"))
+				ind = 0;
+				if (index->j != 0 && !ft_strcmp(index->new[index->j - 1], "<<"))
 					shel->exapnd_herdoc[shel->herdoc_number] = 1;
-				if (!t[index])
-					new[(*j)++] = ft_calloc(1, 1);
+				if (!t[ind])
+					index->new[index->j++] = ft_calloc(1, 1);
 				else
 				{
-					while (t[index])
+					while (t[ind])
 					{
-						new[(*j)++] = ft_strtrim(t[index], " ");
+						index->new[index->j++] = ft_strtrim(t[ind], " ");
 						shel->status[shel->stat++] = 1;
-						index++;
+						ind++;
 					}
 				}
 			}
@@ -200,42 +222,48 @@ void	hendel_no_quotes_spand_j(t_mshel *shel , char *tempo, char **new, int *j, c
 	}
 	else if (tempo)
 	{
-		if ((*j) != 0 && !strcmp(new[(*j) - 1], "<<"))
+		if (index->j != 0 && !ft_strcmp(index->new[index->j - 1], "<<"))
 		{
 			shel->exapnd_herdoc[shel->herdoc_number] = 1;
 			shel->herdoc_number++;
 		}
-		new[(*j)++] = ft_strdup(tempo);
+		index->new[index->j++] = ft_strdup(tempo);
 		shel->status[shel->stat++] = 1;
 	}
 	else
 	{
-		if ((*j) != 0 && !strcmp(new[(*j) - 1], "<<"))
+		if (index->j != 0 && !ft_strcmp(index->new[index->j - 1], "<<"))
 		{
 			shel->exapnd_herdoc[shel->herdoc_number] = 1;
 			shel->herdoc_number++;
 		}
-		new[(*j)++] = ft_calloc(1, 1);
+		index->new[index->j++] = ft_calloc(1, 1);
 		shel->status[shel->stat++] = 1;
 	}
 }
 
-void	hande_no_quoet_expand_n(t_mshel *shel, char **new, int *j, char *a, int checkpoint, int i)
+void	hande_no_quoet_expand_n(t_mshel *shel, t_indexs *index, char *a,
+		int checkpoint)
 {
-	char *tmp = substr(a, checkpoint, i - checkpoint);
+	char	*tmp;
+	int		s;
+	char	*to_befreed;
+
+	tmp = substr(a, checkpoint, index->i - checkpoint);
 	if (ft_strchr(tmp, '<') || ft_strchr(tmp, '>'))
 	{
-		int s = 0;
-		new[(*j)++] = parsse_redirection(tmp, &s);
+		s = 0;
+		index->new[index->j++] = parsse_redirection(tmp, &s);
 		if (tmp[s])
 		{
-			if ((*j) != 0 && new[(*j) - 1] && !strcmp(new[(*j) - 1], "<<"))
+			if (index->j != 0 && index->new[index->j - 1]
+				&& !ft_strcmp(index->new[index->j - 1], "<<"))
 			{
 				shel->exapnd_herdoc[shel->herdoc_number] = 1;
 				shel->herdoc_number++;
 			}
-			char *to_befreed = substr(tmp, s, ft_strlen(tmp) - (s));
-			new[(*j)++] = ft_strtrim(to_befreed, " ");
+			to_befreed = substr(tmp, s, ft_strlen(tmp) - (s));
+			index->new[index->j++] = ft_strtrim(to_befreed, " ");
 			shel->status[shel->stat++] = 0;
 			free(to_befreed);
 		}
@@ -243,20 +271,21 @@ void	hande_no_quoet_expand_n(t_mshel *shel, char **new, int *j, char *a, int che
 	}
 	else
 	{
-		char *to_befreed =  substr(a, checkpoint, i - checkpoint);
-		if ((*j) != 0 && !strcmp(new[(*j) - 1], "<<"))
+		to_befreed = substr(a, checkpoint, index->i - checkpoint);
+		if (index->j != 0 && !ft_strcmp(index->new[index->j - 1], "<<"))
 		{
 			shel->exapnd_herdoc[shel->herdoc_number] = 1;
 			shel->herdoc_number++;
 		}
 		if (checkpoint != 0 && a[checkpoint - 1] != ' ')
 		{
-			new[(*j) - 1] = ft_strjoin(new[(*j) - 1],to_befreed);
+			index->new[index->j - 1] = ft_strjoin(index->new[index->j - 1],
+					to_befreed);
 			free(to_befreed);
 		}
 		else
 		{
-			new[(*j)++] = to_befreed;
+			index->new[index->j++] = to_befreed;
 			shel->status[shel->stat++] = 0;
 		}
 	}

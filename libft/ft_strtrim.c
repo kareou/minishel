@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/04 15:26:40 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/10 21:27:30 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/19 14:29:13 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,14 +42,14 @@ char	*ft_strtrim(char const *s1, char const *set)
 	last_p = ft_strlen(s1);
 	while (s1[i] && in_set(s1[first_p], set))
 	{
-		if(s1[i + 1] != ' ' || !s1[i + 1])
-			break;
+		if (s1[i + 1] != ' ' || !s1[i + 1])
+			break ;
 		first_p++;
 	}
 	while (last_p > first_p && in_set(s1[last_p - 1], set))
 	{
-		if(s1[last_p - 1] != ' ')
-			break;
+		if (s1[last_p - 1] != ' ')
+			break ;
 		last_p--;
 	}
 	new = malloc(sizeof(char) * (last_p - first_p + 1));

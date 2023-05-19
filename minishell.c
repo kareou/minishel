@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 11:28:46 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/14 13:26:03 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/19 14:46:29 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,11 +26,11 @@ void	sigint_handler_quit(int sig)
 	(void)sig;
 }
 
-void minishell(char **env)
+void	minishell(char **env)
 {
-	char *input;
-	char *tmp;
-	t_mshel *shel;
+	char	*input;
+	char	*tmp;
+	t_mshel	*shel;
 
 	signal(SIGQUIT, sigint_handler_quit);
 	signal(SIGINT, sigint_handler_c);

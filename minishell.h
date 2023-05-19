@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 11:29:14 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/14 13:40:25 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/19 21:35:12 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,19 @@ typedef struct s_mshel
 
 //************* lexer **************
 
+typedef struct s_indexs
+{
+	int				i;
+	int				j;
+	int				o;
+	int				r;
+	int				k;
+	int				du;
+	int				duin;
+	char			**new;
+	char			*a;
+}					t_indexs;
+
 typedef struct s_table
 {
 	char			*name_file;
@@ -147,7 +160,7 @@ void				print_errors(char *a);
 //****************************
 
 char				*check_expanding(t_mshel *shel, char *str);
-char				**better_parsing(char *a, t_mshel *shel);
+char				**better_parsing(char *a, t_mshel *shel, t_indexs *index);
 long				checking_overwrite(t_mshel *shel, int cmd_index);
 void				error_to_print(int error, char *file);
 char				*parsse_redirection(char *input, int *s);
@@ -156,47 +169,51 @@ char				*substr(char const *s, unsigned int start, size_t len);
 ////testing
 void				hendel_no_quotes(t_mshel *shel, char **new, int *j,
 						char *tmp);
-void				handel_sing_quote(t_mshel *shel, char *a, int *i,
-						char **new, int *j);
+void				handel_sing_quote(t_mshel *shel, char *a, t_indexs *index);
 int					check_space_place(char *a);
 char				*ft_strtr(char *s1, char *set);
 int					theres_is_red(char *a);
-void				handel_double_quotes(t_mshel *shel, char *a, int *i, int *j,
-						char **new);
-void				handel_no_quotes_expand(char *tempo, char **new, int *j,
-						char a, t_mshel *shel);
+void				handel_double_quotes(t_mshel *shel, char *a,
+						t_indexs *index);
+void				handel_no_quotes_expand(char *tempo,
+						t_indexs *index, char a, t_mshel *shel);
 void				hendel_no_quotes_spand_j(t_mshel *shel, char *tempo,
-						char **new, int *j, char a);
-void				hande_no_quoet_expand_n(t_mshel *shel, char **new, int *j,
-						char *a, int check_point, int i);
+						t_indexs *index, char a);
+void				hande_no_quoet_expand_n(t_mshel *shel,
+						t_indexs *index, char *a, int check_point);
 int					array_lenth(char **a);
 void				open_n_close_p(int (*pipes)[2], int cs, int p_number);
-void	free_lexer(t_lexer *lexer);
-void	free_all(t_mshel *shel, int size);
-int	exit_function(char **a, t_mshel *shel);
+void				free_lexer(t_lexer *lexer);
+void				free_all(t_mshel *shel, int size);
+int					exit_function(char **a, t_mshel *shel);
+int					add_x_env(t_mshel *shel, char *variable);
+int					add_env(t_mshel *shel, char *variable);
 
+// check_syntax.c
+int					check_syntax(char *str);
 
-//check_syntax.c
-int check_syntax(char *str);
+// lexer part
+void				lexer(char *input, t_mshel *shel);
 
-
-//lexer part
-void lexer(char *input, t_mshel *shel);
-
-//node_lk_list
-t_lexer *add_node(char **content, int start, int end);
-void ft_add_back(t_lexer **lst, t_lexer *new);
-
+// node_lk_list
+t_lexer				*add_node(char **content, int start, int end);
+void				ft_add_back(t_lexer **lst, t_lexer *new);
 
 // file parser/parser.c
-int check_redirection(t_lexer *lexer);
-int check_flag(t_lexer *head);
-int check_cmd(t_lexer *head);
-int check_pipe(t_lexer *head);
-char *choose_red(char *red);
-char *all_cmd(char *cmd);
-char *all_redir(char *redir);
- int	find_dollar(char *a);
- char *check_expanding(t_mshel *shel, char *str);
-
+int					check_redirection(t_lexer *lexer);
+int					check_flag(t_lexer *head);
+int					check_cmd(t_lexer *head);
+int					check_pipe(t_lexer *head);
+char				*choose_red(char *red);
+char				*all_cmd(char *cmd);
+char				*all_redir(char *redir);
+int					find_dollar(char *a);
+char				*check_expanding(t_mshel *shel, char *str);
+int					ft_strcmp(char *a, char *b);
+void				transfer(t_lexer *lexer, t_mshel *shel, int j, int k);
+void				transfer_cmd(t_lexer *lexer, t_mshel *shel, int i);
+void				no_quot_part(char *a, t_mshel *shel, t_indexs *index);
+void				read_line(t_mshel *shel, int cmd_index, int *i, int (*pipes)[2]);
+char				*remove_quotes(char *a, int c);
+void	printf_in_pipe(char *a, int fd, int action);
 #endif

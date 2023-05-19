@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/12 18:48:02 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/11 17:25:56 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/19 14:33:52 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ int	redirect_input(t_mshel *mshel, int cmd_index, int status)
 	int	fd;
 	int	i;
 
-	(void)status;
+	(void) status;
 	i = 0;
 	while (mshel->cmd[cmd_index]->redirect.input[i])
 	{
@@ -66,16 +66,16 @@ int	redirect_output(t_mshel *mshel, int cmd_index)
 	i = 0;
 	while (mshel->cmd[cmd_index]->redirect.output[i])
 	{
-		if (!strcmp(mshel->cmd[cmd_index]->redirect.output[i], ">>"))
+		if ((!mshel->cmd[cmd_index]->redirect.out_file[i]
+				|| ft_strchr(mshel->cmd[cmd_index]->redirect.out_file[i],
+					' '))
+			&& mshel->cmd[cmd_index]->redirect.output_expanded[i] == 1)
 		{
-			if ((!mshel->cmd[cmd_index]->redirect.out_file[i]
-					|| ft_strchr(mshel->cmd[cmd_index]->redirect.out_file[i],
-						' '))
-				&& mshel->cmd[cmd_index]->redirect.output_expanded[i] == 1)
-			{
-				mshel->cmd[cmd_index]->error = -3;
-				return (0);
-			}
+			mshel->cmd[cmd_index]->error = -3;
+			return (0);
+		}
+		if (!ft_strcmp(mshel->cmd[cmd_index]->redirect.output[i], ">>"))
+		{
 			tmp_fd = open(mshel->cmd[cmd_index]->redirect.out_file[i], \
 			O_RDWR | O_CREAT | O_APPEND, 0644);
 			if (tmp_fd == -1)
@@ -88,13 +88,6 @@ int	redirect_output(t_mshel *mshel, int cmd_index)
 		}
 		else
 		{
-			if ((!mshel->cmd[cmd_index]->redirect.out_file[i] || \
-			ft_strchr(mshel->cmd[cmd_index]->redirect.out_file[i], ' '))
-				&& mshel->cmd[cmd_index]->redirect.output_expanded[i] == 1)
-			{
-				mshel->cmd[cmd_index]->error = -3;
-				return (0);
-			}
 			tmp_fd = open(mshel->cmd[cmd_index]->redirect.out_file[i], \
 			O_RDWR | O_CREAT | O_TRUNC, 0644);
 			if (tmp_fd == -1)

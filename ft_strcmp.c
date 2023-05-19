@@ -1,25 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_lstnew_bonus.c                                  :+:      :+:    :+:   */
+/*   ft_strcmp.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/10 09:46:14 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/19 14:28:16 by mkhairou         ###   ########.fr       */
+/*   Created: 2023/05/19 20:12:14 by mkhairou          #+#    #+#             */
+/*   Updated: 2023/05/19 20:12:17 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "minishell.h"
 
-t_list	*ft_lstnew(void *content)
+int	ft_strcmp(char *a, char *b)
 {
-	t_list	*node;
+	int	i;
 
-	node = malloc(sizeof(t_list));
-	if (!node)
-		return (0);
-	node->content = content;
-	node->next = NULL;
-	return (node);
+	i = 0;
+	if ((!a && !b))
+		return (-1);
+	if (!a)
+		return (-1);
+	while (a[i] || b[i])
+	{
+		if (a[i] != b[i])
+		{
+			if (a[i])
+				return (a[i] - b[i]);
+			else
+				return (-b[i]);
+		}
+		i++;
+	}
+	return (0);
 }

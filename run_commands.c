@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 11:22:57 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/14 13:16:22 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/19 19:47:15 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,18 +47,20 @@ char	**join_arrays(t_mshel *shel, int index, char *cmd)
 
 int	run_non_builtin(t_mshel *shel, int cmd_index, char *cmd)
 {
-	int	status;
-	int	exited;
+	int		status;
+	int		exited;
+	char	**l;
+	int		i;
 
 	exited = 0;
 	if (shel->cmd_number == 1)
 	{
-		char **l = join_arrays(shel, cmd_index, cmd);
+		l = join_arrays(shel, cmd_index, cmd);
 		if (fork() == 0)
 			execute_shell(l, shel);
 		else
 			wait(&status);
-		int i = 0;
+		i = 0;
 		while (l[i])
 		{
 			free(l[i++]);
@@ -99,18 +101,25 @@ void	run_cmd(t_mshel *shel, int cmd_index, char *cmd)
 	shel->exit_status = exited;
 }
 
-int	start_redirect_pipe(t_mshel *shel, int cmd_index, int red_status, int status, int (*pipe)[2])
+int	start_redirect_pipe(t_mshel *shel, int cmd_index, \
+int status, int (*pipe)[2])
 {
+	int	red_status;
+
+	red_status = check_redirect_place(shel->cmd[cmd_index]->redirect.in, \
+	shel->cmd[cmd_index]->redirect.out);
 	if (!redirect_to_pipe(shel, pipe, cmd_index, red_status, status))
 	{
-		if (!status && shel->cmd[cmd_index]->redirect.heredoc.heredoc_number == 0)
+		if (!status && \
+		shel->cmd[cmd_index]->redirect.heredoc.heredoc_number == 0)
 		{
 			if (shel->cmd[cmd_index]->error == -3)
 				print_errors("minishell: ambiguous redirect");
 			else
-				error_to_print(shel->cmd[cmd_index]->error, shel->cmd[cmd_index]->error_file);
+				error_to_print(shel->cmd[cmd_index]->error, \
+				shel->cmd[cmd_index]->error_file);
 			shel->exit_status = 1;
-			return(1);
+			return (1);
 		}
 		else if (status)
 			exit(1);
@@ -118,26 +127,21 @@ int	start_redirect_pipe(t_mshel *shel, int cmd_index, int red_status, int status
 	return (0);
 }
 
-int	redirect_in_out(t_mshel *shel, int cmd_index,int status)
+int	redirect_in_out(t_mshel *shel, int cmd_index, int status)
 {
+	int	error;
+
+	error = 0;
 	if (!redirect_input(shel, cmd_index, 0))
-	{
-		if (shel->cmd[cmd_index]->error == -3)
-			print_errors("minishell: ambiguous redirect");
-		else
-			error_to_print(shel->cmd[cmd_index]->error, shel->cmd[cmd_index]->error_file);
-		shel->exit_status = 1;
-		if (status)
-			exit(1);
-		else
-			return (1);
-	}
+		error = shel->cmd[cmd_index]->error;
 	if (!redirect_output(shel, cmd_index))
+		error = shel->cmd[cmd_index]->error;
+	if (error)
 	{
-		if (shel->cmd[cmd_index]->error == -3)
+		if (error == -3)
 			print_errors("minishell: ambiguous redirect");
 		else
-			error_to_print(shel->cmd[cmd_index]->error, shel->cmd[cmd_index]->error_file);
+			error_to_print(error, shel->cmd[cmd_index]->error_file);
 		shel->exit_status = 1;
 		if (status)
 			exit(1);
@@ -154,16 +158,18 @@ int	reset_redirection(t_mshel *shel, int cmd_index, int status)
 		if (shel->cmd[cmd_index]->error == -3)
 			print_errors("minishell: ambiguous redirect");
 		else
-			error_to_print(shel->cmd[cmd_index]->error, shel->cmd[cmd_index]->error_file);
+			error_to_print(shel->cmd[cmd_index]->error, \
+			shel->cmd[cmd_index]->error_file);
 		shel->exit_status = 1;
 		if (status)
 			exit(1);
 		else
-			return(1);
+			return (1);
 	}
 	if (shel->cmd[cmd_index]->redirect.old_output != 0)
 	{
-		if (dup2(shel->cmd[cmd_index]->redirect.old_output, STDOUT_FILENO) == -1)
+		if (dup2(shel->cmd[cmd_index]->redirect.old_output, \
+		STDOUT_FILENO) == -1)
 			perror("minishell :");
 	}
 	if (shel->cmd[cmd_index]->redirect.old_input != 0)
@@ -178,12 +184,13 @@ void	execute_cmd(t_mshel *shel, int (*pipe)[2], int cmd_index, int status)
 {
 	int		red_status;
 
-	red_status = check_redirect_place(shel->cmd[cmd_index]->redirect.in, shel->cmd[cmd_index]->redirect.out);
-	if(start_redirect_pipe(shel, cmd_index, red_status, status, pipe))
+	red_status = check_redirect_place(shel->cmd[cmd_index]->redirect.in, \
+	shel->cmd[cmd_index]->redirect.out);
+	if (start_redirect_pipe(shel, cmd_index, status, pipe))
 		return ;
 	if (red_status == 1)
 	{
-		if(redirect_in_out(shel, cmd_index, status))
+		if (redirect_in_out(shel, cmd_index, status))
 			return ;
 	}
 	if (red_status != 1 && status != 0)
@@ -197,6 +204,6 @@ void	execute_cmd(t_mshel *shel, int (*pipe)[2], int cmd_index, int status)
 		ft_heredoc(cmd_index, shel);
 	if (shel->cmd_number > 1)
 		exit(0);
-	if(reset_redirection(shel, cmd_index, status))
+	if (reset_redirection(shel, cmd_index, status))
 		return ;
 }

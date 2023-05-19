@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/13 18:59:02 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/14 11:01:35 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/14 16:57:27 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,12 +28,13 @@ void	free_args(char **a)
 void	free_all(t_mshel *shel, int size)
 {
 	int	i;
+
 	i = 0;
 	while (i < size)
 	{
 		free(shel->cmd[i]->cmd);
 		free_args(shel->cmd[i]->args);
-		if(shel->cmd[i]->redirect.in || shel->cmd[i]->redirect.out)
+		if (shel->cmd[i]->redirect.in || shel->cmd[i]->redirect.out)
 		{
 			free_args(shel->cmd[i]->redirect.input);
 			free_args(shel->cmd[i]->redirect.in_file);
@@ -52,7 +53,7 @@ void	free_all(t_mshel *shel, int size)
 
 void	free_lexer(t_lexer *lexer)
 {
-	t_lexer *head;
+	t_lexer	*head;
 
 	while (lexer)
 	{

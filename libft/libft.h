@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:44:15 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/08 12:49:53 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/19 14:29:51 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,6 @@ int		ft_lstsize(t_list *lst);
 t_list	*ft_lstnew(void *content);
 t_list	*ft_lstlast(t_list *lst);
 t_list	*ft_lstmap(t_list *lst, void *(*f)(void *), void (*del)(void *));
-int len_word(char const *s, char c);
+int		len_word(char const *s, char c);
 
 #endif
