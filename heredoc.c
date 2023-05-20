@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/19 01:25:51 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/19 22:50:21 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/20 19:46:28 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,53 +21,6 @@ char	*remove_quotes(char *a, int c)
 	if (c == '"')
 		returned = ft_strtrim(a, "\"");
 	return (returned);
-}
-
-void	open_n_close_p(int (*pipes)[2], int cs, int p_number)
-{
-	int	i;
-
-	i = 0;
-	if (cs == 0)
-	{
-		while (i < p_number)
-		{
-			pipe(pipes[i]);
-			i++;
-		}
-	}
-	else
-	{
-		while (i < p_number)
-		{
-			close(pipes[i][0]);
-			close(pipes[i][1]);
-			i++;
-		}
-	}
-}
-
-void	printf_in_pipe(char *a, int fd, int action)
-{
-	int	i;
-
-	i = 0;
-	if (!a)
-	{
-		write(fd, "\n", 1);
-		return ;
-	}
-	while (a[i])
-	{
-		write(fd, &a[i], 1);
-		i++;
-	}
-	write(fd, "\n", 1);
-	if (action)
-	{
-		if (a)
-			free(a);
-	}
 }
 
 void	reset_red(t_mshel *shel, int cmd_index, t_indexs *indexs, \
@@ -115,6 +68,17 @@ void	run_cmd_h(t_mshel *shel, int cmd_index, t_indexs *indexs,
 		dup2(tmp_fd, STDIN_FILENO);
 }
 
+void	cancell_red(t_mshel *shel, int c_idx, int redirection, t_indexs *idx)
+{
+	if ((redirection == 2 || redirection == 1))
+	{
+		idx->duin = dup(STDIN_FILENO);
+		dup2(shel->cmd[c_idx]->redirect.old_input, STDIN_FILENO);
+	}
+	idx->du = dup(STDOUT_FILENO);
+	dup2(shel->cmd[c_idx]->redirect.old_output, STDOUT_FILENO);
+}
+
 void	ft_heredoc(int cmd_index, t_mshel *shel)
 {
 	int			h_number;
@@ -124,7 +88,7 @@ void	ft_heredoc(int cmd_index, t_mshel *shel)
 	int			redirection;
 
 	h_number = shel->cmd[cmd_index]->redirect.heredoc.heredoc_number;
-	pipes = malloc(sizeof(int) * h_number);
+	pipes = malloc(sizeof(int [2]) * h_number);
 	indexs.du = 0;
 	indexs.duin = 0;
 	indexs.i = 0;
@@ -134,15 +98,7 @@ void	ft_heredoc(int cmd_index, t_mshel *shel)
 			shel->cmd[cmd_index]->redirect.out);
 	if (shel->cmd_number > 1 || \
 	(redirection && shel->cmd[cmd_index]->error == -1))
-	{
-		if ((redirection == 2 || redirection == 1))
-		{
-			indexs.duin = dup(STDIN_FILENO);
-			dup2(shel->cmd[cmd_index]->redirect.old_input, STDIN_FILENO);
-		}
-		indexs.du = dup(STDOUT_FILENO);
-		dup2(shel->cmd[cmd_index]->redirect.old_output, STDOUT_FILENO);
-	}
+		cancell_red(shel, cmd_index, redirection, &indexs);
 	read_line(shel, cmd_index, &indexs.i, pipes);
 	run_cmd_h(shel, cmd_index, &indexs, pipes);
 }

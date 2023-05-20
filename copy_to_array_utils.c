@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 16:00:15 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/19 16:01:10 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/20 20:06:54 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,16 +117,35 @@ int *start, t_indexs *index)
 	}
 }
 
+void	set_null(t_mshel *shel, t_indexs *index, t_lexer *lexer, int action)
+{
+	if (action == 0)
+	{
+		index->i = 0;
+		index->r = 0;
+		index->o = 0;
+	}
+	else
+	{
+		shel->cmd[index->k]->args[index->i] = NULL;
+		if (lexer->table->redire > 0)
+		{
+			shel->cmd[index->k]->redirect.input[index->r] = NULL;
+			shel->cmd[index->k]->redirect.in_file[index->r] = NULL;
+			shel->cmd[index->k]->redirect.output[index->o] = NULL;
+			shel->cmd[index->k]->redirect.out_file[index->o] = NULL;
+		}
+	}
+}
+
 void	transfer(t_lexer *lexer, t_mshel *shel, int j, int k)
 {
 	t_indexs	index;
 	int			start;
 
 	start = 0;
-	index.i = 0;
-	index.r = 0;
-	index.o = 0;
 	index.k = k;
+	set_null(shel, &index, lexer, 0);
 	while (lexer->str[start])
 	{
 		if (start == j)
@@ -144,12 +163,5 @@ void	transfer(t_lexer *lexer, t_mshel *shel, int j, int k)
 		if (lexer->str[start])
 			transfer_part_2(lexer, shel, &start, &index);
 	}
-	shel->cmd[k]->args[index.i] = NULL;
-	if (lexer->table->redire > 0)
-	{
-		shel->cmd[k]->redirect.input[index.r] = NULL;
-		shel->cmd[k]->redirect.in_file[index.r] = NULL;
-		shel->cmd[k]->redirect.output[index.o] = NULL;
-		shel->cmd[k]->redirect.out_file[index.o] = NULL;
-	}
+	set_null(shel, &index, lexer, 1);
 }

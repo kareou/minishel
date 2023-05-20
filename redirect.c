@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/12 18:48:02 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/19 14:33:52 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/20 22:44:13 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,23 @@ void	error_to_print(int error, char *file)
 	else
 		msg = ft_strjoin(strerror(error), "");
 	print_errors(ft_strjoin("minishell: ", msg));
+}
+
+int	check_error_n_red(int fd, int cmd_index, t_mshel *mshel, int i)
+{
+	if (fd == -1)
+	{
+		mshel->cmd[cmd_index]->error = errno;
+		mshel->cmd[cmd_index]->error_file = \
+		ft_strdup(mshel->cmd[cmd_index]->redirect.in_file[i]);
+		return (0);
+	}
+	if (!mshel->cmd[cmd_index]->redirect.input[i + 1])
+	{
+		if (dup2(fd, STDIN_FILENO) == 1)
+			perror("minishell:");
+	}
+	return (1);
 }
 
 int	redirect_input(t_mshel *mshel, int cmd_index, int status)
@@ -40,20 +57,39 @@ int	redirect_input(t_mshel *mshel, int cmd_index, int status)
 			return (0);
 		}
 		fd = open(mshel->cmd[cmd_index]->redirect.in_file[i], O_RDONLY);
-		if (fd == -1)
+		if (!check_error_n_red(fd, cmd_index, mshel, i))
+			return (0);
+		close(fd);
+		i++;
+	}
+	return (1);
+}
+
+int	open_files(t_mshel *mshel, int cmd_index, int i, int *tmp_fd)
+{
+	if (!ft_strcmp(mshel->cmd[cmd_index]->redirect.output[i], ">>"))
+	{
+		(*tmp_fd) = open(mshel->cmd[cmd_index]->redirect.out_file[i], \
+		O_RDWR | O_CREAT | O_APPEND, 0644);
+		if ((*tmp_fd) == -1)
 		{
 			mshel->cmd[cmd_index]->error = errno;
 			mshel->cmd[cmd_index]->error_file = \
-			ft_strdup(mshel->cmd[cmd_index]->redirect.in_file[i]);
+			ft_strdup(mshel->cmd[cmd_index]->redirect.out_file[i]);
 			return (0);
 		}
-		if (!mshel->cmd[cmd_index]->redirect.input[i + 1])
+	}
+	else
+	{
+		(*tmp_fd) = open(mshel->cmd[cmd_index]->redirect.out_file[i], \
+		O_RDWR | O_CREAT | O_TRUNC, 0644);
+		if ((*tmp_fd) == -1)
 		{
-			if (dup2(fd, STDIN_FILENO) == 1)
-				perror("minishell:");
+			mshel->cmd[cmd_index]->error = errno;
+			mshel->cmd[cmd_index]->error_file = \
+			ft_strdup(mshel->cmd[cmd_index]->redirect.out_file[i]);
+			return (0);
 		}
-		close(fd);
-		i++;
 	}
 	return (1);
 }
@@ -74,30 +110,8 @@ int	redirect_output(t_mshel *mshel, int cmd_index)
 			mshel->cmd[cmd_index]->error = -3;
 			return (0);
 		}
-		if (!ft_strcmp(mshel->cmd[cmd_index]->redirect.output[i], ">>"))
-		{
-			tmp_fd = open(mshel->cmd[cmd_index]->redirect.out_file[i], \
-			O_RDWR | O_CREAT | O_APPEND, 0644);
-			if (tmp_fd == -1)
-			{
-				mshel->cmd[cmd_index]->error = errno;
-				mshel->cmd[cmd_index]->error_file = \
-				ft_strdup(mshel->cmd[cmd_index]->redirect.out_file[i]);
-				return (0);
-			}
-		}
-		else
-		{
-			tmp_fd = open(mshel->cmd[cmd_index]->redirect.out_file[i], \
-			O_RDWR | O_CREAT | O_TRUNC, 0644);
-			if (tmp_fd == -1)
-			{
-				mshel->cmd[cmd_index]->error = errno;
-				mshel->cmd[cmd_index]->error_file = \
-				ft_strdup(mshel->cmd[cmd_index]->redirect.out_file[i]);
-				return (0);
-			}
-		}
+		if (!open_files(mshel, cmd_index, i, &tmp_fd))
+			return (0);
 		if (!mshel->cmd[cmd_index]->redirect.output[i + 1])
 		{
 			if (dup2(tmp_fd, STDOUT_FILENO) == -1)

@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:55:09 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/19 19:39:11 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/20 18:53:46 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,35 @@ char	*ft_strtr(char *s1, char *set)
 		len--;
 	a = ft_substr(s1, 0, len + 1);
 	return (a);
+}
+
+void	split_pipe(char *a, t_mshel *shel, t_indexs *index)
+{
+	int		i;
+	char	**tmp;
+
+	i = -1;
+	tmp = NULL;
+	if (ft_strchr(a, '|'))
+		tmp = ft_split(a, '|');
+	while (tmp && tmp[++i])
+	{
+		if (ft_strchr(tmp[i], '$'))
+		{
+			index->new[index->j++] = check_expanding(shel, tmp[i]);
+			shel->status[shel->stat++] = 1;
+		}
+		else
+		{
+			index->new[index->j++] = ft_strdup(tmp[i]);
+			shel->status[shel->stat++] = 0;
+		}
+		if (tmp[i + 1])
+		{
+			index->new[index->j++] = ft_strdup("|");
+			shel->status[shel->stat++] = 0;
+		}
+	}
 }
 
 void	no_redirection(char *tmp, t_mshel *shel, t_indexs *idx, int checkpoint)
@@ -64,7 +93,7 @@ void	no_quot_part(char *a, t_mshel *shel, t_indexs *index)
 		if (ft_strchr(tmp, '$'))
 		{
 			if (ft_strchr(tmp, '<') || ft_strchr(tmp, '>'))
-				hendel_no_quotes(shel, index->new, &index->j, tmp);
+				hendel_no_quotes(shel, index, tmp);
 			else
 				no_redirection(tmp, shel, index, checkpoint);
 		}

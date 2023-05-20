@@ -6,30 +6,33 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/14 11:10:30 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/19 20:15:12 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/20 22:31:34 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	d_quotes_j(char *tp, char **new, t_mshel *shel, int *j)
+void	join_it(char **new, char *tp, t_mshel *shel, int *j)
 {
 	char	*to_free;
 
+	if (ft_strchr(new[(*j) - 1], ' ') && check_space_place \
+	(new[(*j) - 1]) == 1 && shel->status[shel->stat - 1] == 1)
+	{
+		to_free = ft_strtr(new[(*j) - 1], " ");
+		new[(*j) - 1] = ft_strjoin(to_free, tp);
+		free(to_free);
+	}
+	else
+		new[(*j) - 1] = ft_strjoin(new[(*j) - 1], tp);
+}
+
+void	d_quotes_j(char *tp, char **new, t_mshel *shel, int *j)
+{
 	if ((*j) != 0)
 	{
 		if (new[(*j) - 1][0] && tp[0])
-		{
-			if (ft_strchr(new[(*j) - 1], ' ') && check_space_place \
-			(new[(*j) - 1]) == 1 && shel->status[shel->stat - 1] == 1)
-			{
-				to_free = ft_strtr(new[(*j) - 1], " ");
-				new[(*j) - 1] = ft_strjoin(to_free, tp);
-				free(to_free);
-			}
-			else
-				new[(*j) - 1] = ft_strjoin(new[(*j) - 1], tp);
-		}
+			join_it(new, tp, shel, j);
 		else
 		{
 			if (tp[0])
@@ -47,26 +50,26 @@ void	d_quotes_j(char *tp, char **new, t_mshel *shel, int *j)
 	}
 }
 
-void	d_quote_expand(char *a, int checkpoint, t_indexs *index, char **new,
+void	d_quote_expand(char *a, int checkpoint, t_indexs *idx,
 		t_mshel *shel)
 {
 	char	*exp;
 	char	*tet;
 
-	exp = substr(a, checkpoint + 1, index->i - 1 - checkpoint);
+	exp = substr(a, checkpoint + 1, idx->i - 1 - checkpoint);
 	tet = check_expanding(shel, exp);
 	free(exp);
 	if (checkpoint != 0 && a[checkpoint - 1] != ' ')
 	{
 		if (tet)
-			new[index->j - 1] = ft_strjoin(new[index->j - 1], tet);
+			idx->new[idx->j - 1] = ft_strjoin(idx->new[idx->j - 1], tet);
 	}
 	else
 	{
 		if (tet)
-			new[index->j++] = strdup(tet);
+			idx->new[idx->j++] = strdup(tet);
 		else
-			new[index->j++] = NULL;
+			idx->new[idx->j++] = NULL;
 	}
 	if (tet)
 		free(tet);
@@ -105,13 +108,10 @@ void	handel_double_quotes(t_mshel *shel, char *a, t_indexs *index)
 		index->i++;
 	if (index->j != 0 && index->new[index->j - 1] && \
 	!ft_strcmp(index->new[index->j - 1], "<<"))
-	{
-		shel->exapnd_herdoc[shel->herdoc_number] = 0;
-		shel->herdoc_number++;
-	}
+		shel->exapnd_herdoc[shel->herdoc_number++] = 0;
 	if (ft_strchr(substr(a, checkpoint, index->i - checkpoint), '$') \
 	&& a[index->i - 1] != '$')
-		d_quote_expand(a, checkpoint, index, index->new, shel);
+		d_quote_expand(a, checkpoint, index, shel);
 	else
 	{
 		if (checkpoint != 0 && a[checkpoint - 1] != ' ')

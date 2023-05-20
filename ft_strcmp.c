@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 20:12:14 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/19 20:12:17 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/20 12:04:52 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ int	ft_strcmp(char *a, char *b)
 	i = 0;
 	if ((!a && !b))
 		return (-1);
-	if (!a)
+	if (!a || !a[0])
 		return (-1);
 	while (a[i] || b[i])
 	{

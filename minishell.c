@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 11:28:46 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/19 14:46:29 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/20 19:44:08 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,40 @@ void	sigint_handler_c(int sig)
 void	sigint_handler_quit(int sig)
 {
 	(void)sig;
+}
+
+char	*fix_pipe(char *a)
+{
+	int		i;
+	int		j;
+	int		quote;
+	char	*b;
+
+	i = 0;
+	j = 0;
+	quote = 0;
+	b = malloc(sizeof(char) * (ft_strlen(a) * 2));
+	while (a[i])
+	{
+		if (a[i] == '"' || a[i] == '\'')
+		{
+			if (quote == 0)
+				quote = a[i];
+			else
+				quote = 0;
+		}
+		if (a[i] == '|' && quote == 0)
+		{
+			b[j++] = ' ';
+			b[j++] = '|';
+			b[j++] = ' ';
+		}
+		else
+			b[j++] = a[i];
+		i++;
+	}
+	b[j] = '\0';
+	return (b);
 }
 
 void	minishell(char **env)
@@ -46,8 +80,8 @@ void	minishell(char **env)
 			exit(shel->exit_status);
 		add_history(input);
 		tmp = ft_strtrim(input, " ");
-		if (check_syntax(tmp))
-			lexer(input, shel);
+		if (check_syntax(tmp, -1, 0))
+			lexer(fix_pipe(tmp), shel);
 		else
 			shel->exit_status = 2;
 		free(tmp);

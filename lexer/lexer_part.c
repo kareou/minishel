@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/12 13:05:10 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/19 14:44:13 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/20 18:52:20 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,4 +73,5 @@ void	lexer(char *input, t_mshel *shel)
 	string = alloc_lexer_string(input, shel);
 	string = better_parsing(input, shel, &index);
 	lexer_part_separate(string, shel, newnode, lst);
+	free(input);
 }

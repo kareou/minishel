@@ -6,39 +6,18 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/13 18:29:39 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/13 13:23:55 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/20 21:37:06 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	ft_unset_utils(t_mshel *shel, char *variable)
+void	unset_x_env(t_mshel *shel, char *variable)
 {
 	int		i;
 	int		j;
-	char	**new_env;
 	char	**new_x_env;
 
-	i = 0;
-	while (shel->env[i])
-		i++;
-	new_env = malloc(sizeof(char *) * (i + 1));
-	i = 0;
-	j = 0;
-	while (shel->env[i])
-	{
-		if (!ft_strncmp(shel->env[i], variable, ft_strlen(variable))
-			&& (shel->env[i][ft_strlen(variable)] == '='
-			|| !shel->env[i][ft_strlen(variable)]))
-			i++;
-		if (shel->env[i])
-		{
-			new_env[j] = ft_strdup(shel->env[i]);
-			i++;
-			j++;
-		}
-	}
-	new_env[j] = NULL;
 	i = 0;
 	while (shel->x_env[i])
 		i++;
@@ -57,8 +36,35 @@ void	ft_unset_utils(t_mshel *shel, char *variable)
 		}
 	}
 	new_x_env[j] = NULL;
-	shel->env = new_env;
+	free_array(shel->x_env);
 	shel->x_env = new_x_env;
+}
+
+void	ft_unset_utils(t_mshel *shel, char *variable, int i, int j)
+{
+	char	**new_env;
+
+	while (shel->env[i])
+		i++;
+	new_env = malloc(sizeof(char *) * (i + 1));
+	i = 0;
+	while (shel->env[i])
+	{
+		if (!ft_strncmp(shel->env[i], variable, ft_strlen(variable))
+			&& (shel->env[i][ft_strlen(variable)] == '='
+			|| !shel->env[i][ft_strlen(variable)]))
+			i++;
+		if (shel->env[i])
+		{
+			new_env[j] = ft_strdup(shel->env[i]);
+			i++;
+			j++;
+		}
+	}
+	new_env[j] = NULL;
+	free_array(shel->env);
+	shel->env = new_env;
+	unset_x_env(shel, variable);
 }
 
 void	ft_unset(t_mshel *shel, int cmd_index)
@@ -68,7 +74,7 @@ void	ft_unset(t_mshel *shel, int cmd_index)
 	i = 0;
 	while (shel->cmd[cmd_index]->args[i])
 	{
-		ft_unset_utils(shel, shel->cmd[cmd_index]->args[i]);
+		ft_unset_utils(shel, shel->cmd[cmd_index]->args[i], 0, 0);
 		i++;
 	}
 }

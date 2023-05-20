@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 11:29:14 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/19 21:35:12 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/20 21:19:32 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,7 +142,7 @@ void				p_w_d(void);
 int					c_d(t_mshel *shel, char *a);
 void				print_env(t_mshel *shel, int stat);
 char				*ft_getenv(t_mshel *mshel, char *a);
-int					ft_export(t_mshel *shel, int cmd_index);
+int					ft_export(t_mshel *shel, int cmd_index, int i);
 void				dup_env(t_mshel *shel, char **env);
 void				ft_unset(t_mshel *shel, int cmd_index);
 void				run_cmd(t_mshel *shel, int cmd_index, char *cmd);
@@ -167,7 +167,7 @@ char				*parsse_redirection(char *input, int *s);
 char				*substr(char const *s, unsigned int start, size_t len);
 
 ////testing
-void				hendel_no_quotes(t_mshel *shel, char **new, int *j,
+void				hendel_no_quotes(t_mshel *shel, t_indexs *index,
 						char *tmp);
 void				handel_sing_quote(t_mshel *shel, char *a, t_indexs *index);
 int					check_space_place(char *a);
@@ -190,7 +190,7 @@ int					add_x_env(t_mshel *shel, char *variable);
 int					add_env(t_mshel *shel, char *variable);
 
 // check_syntax.c
-int					check_syntax(char *str);
+int					check_syntax(char *a, int i, int quotes);
 
 // lexer part
 void				lexer(char *input, t_mshel *shel);
@@ -213,7 +213,13 @@ int					ft_strcmp(char *a, char *b);
 void				transfer(t_lexer *lexer, t_mshel *shel, int j, int k);
 void				transfer_cmd(t_lexer *lexer, t_mshel *shel, int i);
 void				no_quot_part(char *a, t_mshel *shel, t_indexs *index);
-void				read_line(t_mshel *shel, int cmd_index, int *i, int (*pipes)[2]);
+void				read_line(t_mshel *shel, int cmd_index, int *i, \
+int (*pipes)[2]);
 char				*remove_quotes(char *a, int c);
-void	printf_in_pipe(char *a, int fd, int action);
+void				printf_in_pipe(char *a, int fd, int action);
+void				split_pipe(char *a, t_mshel *shel, t_indexs *index);
+void				free_array(char **a);
+int					check_valid(char *a, int declare, \
+t_mshel *shel);
+
 #endif
