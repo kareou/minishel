@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 20:08:26 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/19 20:08:51 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/22 15:54:24 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,11 +28,31 @@ void	change_pwd(char *old, t_mshel *shel)
 	free(update_new);
 }
 
-int	c_d(t_mshel *shel, char *a)
+int	test(char *a, char *thispath, t_mshel *shel, int i)
 {
 	int		ret;
-	char	*thispath;
+	char	*error;
 
+	ret = chdir(a);
+	if (ret == -1)
+	{
+		error = ft_strjoin("minishell: ", strerror(errno));
+		print_errors(error);
+		free(error);
+		return (1);
+	}
+	if (i)
+		free(a);
+	change_pwd(thispath, shel);
+	return (0);
+}
+
+int	c_d(t_mshel *shel, char *a)
+{
+	char	*thispath;
+	int		i;
+
+	i = 0;
 	if (!a)
 	{
 		a = ft_getenv(shel, "HOME");
@@ -43,15 +63,13 @@ int	c_d(t_mshel *shel, char *a)
 		}
 	}
 	if (!ft_strncmp(a, "~", 1))
-		a = ft_strjoin("/Users/", ft_getenv(shel, "USER"));
-	thispath = ft_getenv(shel, "PWD");
-	ret = chdir(a);
-	if (ret == -1)
 	{
-		print_errors(ft_strjoin("minishell: ", strerror(errno)));
-		return (1);
+		a = ft_strjoin("/Users/", ft_getenv(shel, "USER"));
+		i = 1;
 	}
-	change_pwd(thispath, shel);
+	thispath = ft_getenv(shel, "PWD");
+	if (test(a, thispath, shel, i))
+		return (1);
 	return (0);
 }
 

@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/14 11:33:12 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/14 11:44:52 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/22 16:44:55 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,19 +48,28 @@ int	check_multip(char **a, t_mshel *shel)
 	return (0);
 }
 
+void	exiting(t_mshel *shel, int exit_status, int free_all_flag)
+{
+	free_array(shel->env);
+	free_array(shel->x_env);
+	if (free_all_flag)
+		free_all(shel, shel->cmd_number);
+	exit(exit_status);
+}
+
 int	check_exit_num(char **a, t_mshel *shel)
 {
 	char	*tmp;
+	char	*error;
 
 	if (!exit_utils(a[0]))
 	{
 		tmp = ft_strjoin("minishell: exit: ", a[0]);
-		print_errors(ft_strjoin(tmp, ": numeric argument required"));
+		error = ft_strjoin(tmp, ": numeric argument required");
+		print_errors(error);
 		free(tmp);
-		if (shel->cmd_number == 1)
-			return (255);
-		else
-			exit(255);
+		free(error);
+		exiting(shel, 255, 1);
 	}
 	return (0);
 }
@@ -71,18 +80,17 @@ int	exit_function(char **a, t_mshel *shel)
 
 	i = 0;
 	if (!a[0])
-		exit(shel->exit_status);
+		exiting(shel, shel->exit_status, 1);
 	else
 	{
-		if (check_exit_num(a, shel) == 255)
-			return (255);
+		check_exit_num(a, shel);
 		if (check_multip(a, shel) == 1)
 			return (1);
 		i = 0;
 		while (a[i])
 		{
 			if (ft_isdigit(a[i][0]) || (a[i][0] == '-' && ft_isdigit(a[i][1])))
-				exit(ft_atoi(a[i]) % 256);
+				exiting(shel, ft_atoi(a[i]) % 256, 1);
 			i++;
 		}
 	}

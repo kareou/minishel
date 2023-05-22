@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/04 15:26:40 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/19 14:29:13 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/22 13:53:25 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@ int	in_set(int c, char const *set)
 	size_t	i;
 
 	i = 0;
+	if (c >= 9 && c <= 13)
+		return (1);
 	while (set[i])
 	{
 		if (c == set[i])

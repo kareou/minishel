@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/11 11:55:25 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/20 22:27:27 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/22 16:49:59 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,15 +81,18 @@ void	hane_no_q_exp_part2(t_mshel *shel, t_indexs *index, char *a, \
 int checkpoint)
 {
 	char	*to_befreed;
+	char	*poin;
 
 	to_befreed = substr(a, checkpoint, index->i - checkpoint);
 	if (index->j != 0 && !ft_strcmp(index->new[index->j - 1], "<<"))
 		shel->exapnd_herdoc[shel->herdoc_number++] = 1;
-	if (checkpoint != 0 && a[checkpoint - 1] != ' ')
+	if (checkpoint != 0 && a[checkpoint - 1] != ' ' && a[checkpoint - 1] != 9)
 	{
+		poin = index->new[index->j - 1];
 		index->new[index->j - 1] = ft_strjoin(index->new[index->j - 1],
 				to_befreed);
 		free(to_befreed);
+		free(poin);
 	}
 	else
 	{

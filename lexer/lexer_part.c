@@ -6,13 +6,13 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/12 13:05:10 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/20 18:52:20 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/22 12:32:03 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./../minishell.h"
 
-char	**alloc_lexer_string(char *input, t_mshel *shel)
+char	**alloc_lexer_string(char *input)
 {
 	char	**string;
 	int		count;
@@ -29,7 +29,6 @@ char	**alloc_lexer_string(char *input, t_mshel *shel)
 	string = malloc(sizeof(char *) * (count + 1));
 	if (!string)
 		return (0);
-	shel->store_input = ft_strdup(input);
 	return (string);
 }
 
@@ -56,6 +55,7 @@ void	lexer_part_separate(char **string, t_mshel *shel, t_lexer *newnode,
 		newnode = add_node(string, j, i);
 		ft_add_back(&lst, newnode);
 	}
+	free_array(string);
 	parser(lst, shel, shel->store_input);
 }
 
@@ -70,8 +70,7 @@ void	lexer(char *input, t_mshel *shel)
 	index.j = 0;
 	lst = NULL;
 	newnode = NULL;
-	string = alloc_lexer_string(input, shel);
 	string = better_parsing(input, shel, &index);
-	lexer_part_separate(string, shel, newnode, lst);
 	free(input);
+	lexer_part_separate(string, shel, newnode, lst);
 }

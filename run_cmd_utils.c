@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/20 19:51:08 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/20 21:15:48 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/22 16:03:19 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,7 +99,7 @@ void	run_cmd(t_mshel *shel, int cmd_index, char *cmd)
 	else if (cmd[0] && !ft_strncmp(cmd, "export", strlen("export")))
 		exited = ft_export(shel, cmd_index, -1);
 	else if (cmd[0] && !strncmp(cmd, "unset", strlen("unset")))
-		ft_unset(shel, cmd_index);
+		exited = ft_unset(shel, cmd_index);
 	else if (cmd[0] && (!strncmp(cmd, "env", strlen("env")) || \
 	!ft_strncmp(cmd, "/usr/bin/env", ft_strlen("/usr/bin/env"))))
 		print_env(shel, 0);

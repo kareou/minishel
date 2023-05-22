@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/20 20:26:28 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/20 21:20:07 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/22 15:10:57 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,11 +32,13 @@ int	start_adding(t_mshel *shel, char *variable, int *i)
 		if (!ft_strncmp(shel->x_env[(*i)], var[0], ft_strlen(var[0])))
 		{
 			free(shel->x_env[(*i)]);
+			free_array(var);
 			shel->x_env[(*i)] = ft_strdup(variable);
 			return (1);
 		}
 		(*i)++;
 	}
+	free_array(var);
 	return (2);
 }
 

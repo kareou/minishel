@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/13 18:29:39 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/20 21:37:06 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/22 16:29:02 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ void	unset_x_env(t_mshel *shel, char *variable)
 	i = 0;
 	while (shel->x_env[i])
 		i++;
-	new_x_env = malloc(sizeof(char *) * i);
+	new_x_env = malloc(sizeof(char *) * (i + 1));
 	i = 0;
 	j = 0;
 	while (shel->x_env[i])
@@ -40,12 +40,14 @@ void	unset_x_env(t_mshel *shel, char *variable)
 	shel->x_env = new_x_env;
 }
 
-void	ft_unset_utils(t_mshel *shel, char *variable, int i, int j)
+int	ft_unset_utils(t_mshel *shel, char *variable, int i, int j)
 {
 	char	**new_env;
 
 	while (shel->env[i])
 		i++;
+	if (!check_valid(variable, 1, shel))
+		return (0);
 	new_env = malloc(sizeof(char *) * (i + 1));
 	i = 0;
 	while (shel->env[i])
@@ -56,27 +58,31 @@ void	ft_unset_utils(t_mshel *shel, char *variable, int i, int j)
 			i++;
 		if (shel->env[i])
 		{
-			new_env[j] = ft_strdup(shel->env[i]);
+			new_env[j++] = ft_strdup(shel->env[i]);
 			i++;
-			j++;
 		}
 	}
 	new_env[j] = NULL;
 	free_array(shel->env);
 	shel->env = new_env;
 	unset_x_env(shel, variable);
+	return (1);
 }
 
-void	ft_unset(t_mshel *shel, int cmd_index)
+int	ft_unset(t_mshel *shel, int cmd_index)
 {
 	int	i;
+	int	state;
 
 	i = 0;
+	state = 0;
 	while (shel->cmd[cmd_index]->args[i])
 	{
-		ft_unset_utils(shel, shel->cmd[cmd_index]->args[i], 0, 0);
+		if (!ft_unset_utils(shel, shel->cmd[cmd_index]->args[i], 0, 0))
+			state = 1;
 		i++;
 	}
+	return (state);
 }
 
 char	*ft_getenv(t_mshel *mshel, char *a)

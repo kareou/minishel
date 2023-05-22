@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:55:09 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/20 18:53:46 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/22 15:45:49 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ void	no_quot_part(char *a, t_mshel *shel, t_indexs *index)
 	checkpoint = index->i;
 	index->a = a;
 	while (a[(index->i)] != '\0' && a[(index->i)] != 39 && a[(index->i)] != 34
-		&& a[(index->i)] != ' ')
+		&& a[(index->i)] != ' ' && a[(index->i)] != 9)
 		(index->i)++;
 	if ((index->i) > checkpoint)
 	{

@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 11:22:57 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/20 19:51:30 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/22 15:55:45 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,18 @@ int status, int (*pipe)[2])
 	return (0);
 }
 
+void	cancel_red(t_mshel *shel, int cmd_index)
+{
+	if (shel->cmd[cmd_index]->redirect.old_output != 0)
+		dup2(shel->cmd[cmd_index]->redirect.old_output, \
+		STDOUT_FILENO);
+	if (shel->cmd[cmd_index]->redirect.old_input != 0)
+	{
+		if (dup2(shel->cmd[cmd_index]->redirect.old_input, STDIN_FILENO) == -1)
+		perror("minishell :");
+	}
+}
+
 int	redirect_in_out(t_mshel *shel, int cmd_index, int status)
 {
 	int	error;
@@ -57,7 +69,10 @@ int	redirect_in_out(t_mshel *shel, int cmd_index, int status)
 		if (status)
 			exit(1);
 		else
+		{
+			cancel_red(shel, cmd_index);
 			return (1);
+		}
 	}
 	return (0);
 }

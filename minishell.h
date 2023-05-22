@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 11:29:14 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/20 21:19:32 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/22 16:44:42 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,7 +144,7 @@ void				print_env(t_mshel *shel, int stat);
 char				*ft_getenv(t_mshel *mshel, char *a);
 int					ft_export(t_mshel *shel, int cmd_index, int i);
 void				dup_env(t_mshel *shel, char **env);
-void				ft_unset(t_mshel *shel, int cmd_index);
+int					ft_unset(t_mshel *shel, int cmd_index);
 void				run_cmd(t_mshel *shel, int cmd_index, char *cmd);
 //****************************
 
@@ -221,5 +221,8 @@ void				split_pipe(char *a, t_mshel *shel, t_indexs *index);
 void				free_array(char **a);
 int					check_valid(char *a, int declare, \
 t_mshel *shel);
+void				free_array(char **string);
+int					reset_redirection(t_mshel *shel, int cmd_index, int status);
+void				exiting(t_mshel *shel, int exit_status, int free_all_flag);
 
 #endif

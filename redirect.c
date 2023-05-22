@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/12 18:48:02 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/20 22:44:13 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/22 12:49:53 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,12 +15,21 @@
 void	error_to_print(int error, char *file)
 {
 	char	*msg;
+	char	*tp;
+	char	*tmp;
 
 	if (error == 13)
-		msg = ft_strjoin(file, ft_strjoin(": ", strerror(error)));
+	{
+		tp = ft_strjoin(": ", strerror(error));
+		msg = ft_strjoin(file, tp);
+		free(tp);
+	}
 	else
-		msg = ft_strjoin(strerror(error), "");
-	print_errors(ft_strjoin("minishell: ", msg));
+		msg = strerror(error);
+	tmp = ft_strjoin("minishell: ", msg);
+	free(file);
+	print_errors(tmp);
+	free(tmp);
 }
 
 int	check_error_n_red(int fd, int cmd_index, t_mshel *mshel, int i)

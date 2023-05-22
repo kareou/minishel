@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/13 18:59:02 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/14 16:57:27 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/22 12:22:27 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,7 @@ void	free_lexer(t_lexer *lexer)
 	{
 		free_args(lexer->str);
 		free(lexer->table);
+		free(lexer->env);
 		head = lexer;
 		lexer = lexer->next;
 		free(head);

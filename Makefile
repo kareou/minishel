@@ -8,7 +8,7 @@ FILE = minishell.c norminnette_parsing.c redirect.c utils.c ft_export.c heredoc.
 		nor_utils.c nor_no_q.c nor_singel_q.c
 CC =  cc
 file = ./libft/libft.a
-CFLAGS =  -Wall -Wextra -Werror -fsanitize=address -g
+CFLAGS =  -Wall -Wextra -Werror #-fsanitize=address -g
 
 
 HEAD = -lreadline #-L/goinfre/asekkak/homebrew/opt/readline/lib

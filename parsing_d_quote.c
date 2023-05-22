@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/14 11:10:30 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/20 22:31:34 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/22 15:56:24 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,6 +101,7 @@ void	handel_double_quotes(t_mshel *shel, char *a, t_indexs *index)
 {
 	int		checkpoint;
 	char	*tp;
+	char	*to_be_freed;
 
 	checkpoint = index->i;
 	index->i++;
@@ -109,12 +110,14 @@ void	handel_double_quotes(t_mshel *shel, char *a, t_indexs *index)
 	if (index->j != 0 && index->new[index->j - 1] && \
 	!ft_strcmp(index->new[index->j - 1], "<<"))
 		shel->exapnd_herdoc[shel->herdoc_number++] = 0;
-	if (ft_strchr(substr(a, checkpoint, index->i - checkpoint), '$') \
+	to_be_freed = substr(a, checkpoint, index->i - checkpoint);
+	if (ft_strchr(to_be_freed, '$') \
 	&& a[index->i - 1] != '$')
 		d_quote_expand(a, checkpoint, index, shel);
 	else
 	{
-		if (checkpoint != 0 && a[checkpoint - 1] != ' ')
+		if (checkpoint != 0 && a[checkpoint - 1] != ' ' && \
+		a[checkpoint - 1] != 9)
 		{
 			tp = substr(a, checkpoint + 1, index->i - checkpoint - 1);
 			d_quotes_j(tp, index->new, shel, &index->j);
@@ -123,4 +126,5 @@ void	handel_double_quotes(t_mshel *shel, char *a, t_indexs *index)
 		else
 			d_quote_copy(shel, index, checkpoint, a);
 	}
+	free(to_be_freed);
 }

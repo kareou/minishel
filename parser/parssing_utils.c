@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/07 18:52:28 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/20 19:46:47 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/22 12:34:13 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +18,11 @@ char	*second_part(char *input, int *s)
 
 	if (input[*s + 1] == '<')
 	{
-		new = "<<";
+		new = ft_strdup("<<");
 		(*s)++;
 	}
 	else
-		new = "<";
+		new = ft_strdup("<");
 	(*s)++;
 	return (new);
 }
@@ -42,11 +42,11 @@ char	*parsse_redirection(char *input, int *s)
 	{
 		if (input[*s + 1] == '>')
 		{
-			new = ">>";
+			new = ft_strdup(">>");
 			(*s)++;
 		}
 		else
-			new = ">";
+			new = ft_strdup(">");
 		(*s)++;
 	}
 	else if (input[*s] == '<')

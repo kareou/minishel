@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 11:28:46 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/20 19:44:08 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/22 16:44:59 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ void	minishell(char **env)
 	{
 		input = readline("minishell> ");
 		if (input == NULL)
-			exit(shel->exit_status);
+			exiting(shel, shel->exit_status, 0);
 		add_history(input);
 		tmp = ft_strtrim(input, " ");
 		if (check_syntax(tmp, -1, 0))
