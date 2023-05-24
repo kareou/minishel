@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/20 21:40:08 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/20 21:47:10 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/23 15:08:11 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ void	join(t_mshel *shel, char *tempo, t_indexs *index, char a)
 	if (ft_strlen(tempo) > 1)
 	{
 		if (a)
-			index->new[index->j - 1] = ft_strjoin(index->new[index->j
+			index->new[index->j - 1] = smart_join(index->new[index->j
 					- 1], tempo);
 		else
 		{
@@ -27,7 +27,8 @@ void	join(t_mshel *shel, char *tempo, t_indexs *index, char a)
 			{
 				tmp = ft_strtrim(tempo, " ");
 				index->new[index->j
-					- 1] = ft_strjoin(index->new[index->j - 1], tmp);
+					- 1] = smart_join(index->new[index->j - 1], tmp);
+				free(tmp);
 			}
 			else
 				index->new[index->j - 1] = ft_strtr(tempo, " ");

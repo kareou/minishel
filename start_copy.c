@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:41:16 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/19 17:47:34 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/23 15:17:18 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,15 +32,18 @@ void	dup_env(t_mshel *shel, char **env)
 	shel->env[i] = NULL;
 }
 
-void	alloc_all(t_mshel *mshel, int size_arrays)
+void	alloc_all(t_mshel *mshel, int size_arrays, t_lexer *lexer)
 {
-	int	i;
+	t_lexer	*head;
+	int		i;
 
+	head = lexer;
 	i = 0;
 	while (i < size_arrays)
 	{
 		mshel->cmd[i] = malloc(sizeof(t_cmd));
-		mshel->cmd[i]->args = malloc(sizeof(char *) * 101);
+		mshel->cmd[i]->args = malloc(sizeof(char *) * \
+		(array_lenth(head->str) + 1));
 		mshel->cmd[i]->error = -1;
 		mshel->cmd[i]->redirect.heredoc.heredoc_number = 0;
 		mshel->cmd[i]->redirect.in = 0;
@@ -48,7 +51,10 @@ void	alloc_all(t_mshel *mshel, int size_arrays)
 		mshel->cmd[i]->redirect.old_output = 0;
 		mshel->cmd[i]->redirect.old_input = 0;
 		mshel->cmd[i]->redirect.ambugius = 0;
+		mshel->cmd[i]->red = 0;
 		i++;
+		if (head->next)
+			head = head->next;
 	}
 }
 
@@ -59,7 +65,7 @@ void	transfer_to_array(t_lexer *lexer, int size_arrays, t_mshel *mshel)
 	mshel->cmd = malloc(sizeof(t_cmd *) * size_arrays);
 	if (!mshel->cmd)
 		exit(1);
-	alloc_all(mshel, size_arrays);
+	alloc_all(mshel, size_arrays, lexer);
 	transfer_cmd(lexer, mshel, 0);
 	free_lexer(lexer);
 	if (mshel->cmd_number == 1)

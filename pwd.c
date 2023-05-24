@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 20:08:26 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/22 15:54:24 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/23 11:39:31 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,11 +19,11 @@ void	change_pwd(char *old, t_mshel *shel)
 	char	a[PATH_MAX];
 
 	update_old = ft_strjoin("OLDPWD=", old);
-	add_env(shel, update_old);
+	add_env(shel, update_old, -1);
 	add_x_env(shel, update_old);
 	free(update_old);
 	update_new = ft_strjoin("PWD=", getcwd(a, sizeof(a)));
-	add_env(shel, update_new);
+	add_env(shel, update_new, -1);
 	add_x_env(shel, update_new);
 	free(update_new);
 }

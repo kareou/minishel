@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/19 01:25:51 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/20 19:46:28 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/24 12:34:59 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ void	run_cmd_h(t_mshel *shel, int cmd_index, t_indexs *indexs,
 
 void	cancell_red(t_mshel *shel, int c_idx, int redirection, t_indexs *idx)
 {
-	if ((redirection == 2 || redirection == 1))
+	if ((redirection == 2 || redirection == 1) || shel->cmd_number > 1)
 	{
 		idx->duin = dup(STDIN_FILENO);
 		dup2(shel->cmd[c_idx]->redirect.old_input, STDIN_FILENO);
@@ -101,4 +101,6 @@ void	ft_heredoc(int cmd_index, t_mshel *shel)
 		cancell_red(shel, cmd_index, redirection, &indexs);
 	read_line(shel, cmd_index, &indexs.i, pipes);
 	run_cmd_h(shel, cmd_index, &indexs, pipes);
+	free(pipes);
+	exit(0);
 }

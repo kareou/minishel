@@ -6,17 +6,14 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/20 20:26:28 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/22 15:10:57 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/23 11:03:08 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	start_adding(t_mshel *shel, char *variable, int *i)
+int	check_arg(t_mshel *shel, char *variable, char **var)
 {
-	char	**var;
-
-	var = ft_split(variable, '=');
 	if (!var[1] && variable[ft_strlen(variable) - 1] != '=')
 	{
 		if (!check_valid(var[0], 1, shel))
@@ -26,6 +23,19 @@ int	start_adding(t_mshel *shel, char *variable, int *i)
 	{
 		if (!check_valid(var[0], 0, shel))
 			return (0);
+	}
+	return (1);
+}
+
+int	start_adding(t_mshel *shel, char *variable, int *i)
+{
+	char	**var;
+
+	var = ft_split(variable, '=');
+	if (!check_arg(shel, variable, var))
+	{
+		free_array(var);
+		return (0);
 	}
 	while (shel->x_env[(*i)])
 	{

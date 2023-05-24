@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/20 20:18:41 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/22 15:10:48 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/23 11:05:24 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,17 +28,18 @@ void	dupenv(t_mshel *shel, char *variable, char **new_env)
 	free_array(shel->env);
 }
 
-int	add_env(t_mshel *shel, char *variable)
+int	add_env(t_mshel *shel, char *variable, int i)
 {
-	int		i;
 	char	**var;
 	char	**new_env;
 
-	i = 0;
 	var = ft_split(variable, '=');
 	if (!check_valid(var[0], 1, shel))
+	{
+		free_array(var);
 		return (0);
-	while (shel->env[i])
+	}
+	while (shel->env[++i])
 	{
 		if (!ft_strncmp(shel->env[i], var[0], ft_strlen(var[0]))
 			&& shel->env[i][ft_strlen(var[0])] == '=')
@@ -48,7 +49,6 @@ int	add_env(t_mshel *shel, char *variable)
 			shel->env[i] = ft_strdup(variable);
 			return (1);
 		}
-		i++;
 	}
 	new_env = malloc(sizeof(char *) * (i + 2));
 	dupenv(shel, variable, new_env);

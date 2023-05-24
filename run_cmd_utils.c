@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/20 19:51:08 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/22 16:03:19 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/23 11:18:49 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,28 +80,41 @@ int	run_non_builtin(t_mshel *shel, int cmd_index, char *cmd)
 	return (exited);
 }
 
+char	*to_lower(char *a)
+{
+	int	i;
+
+	i = 0;
+	while (a[i])
+	{
+		a[i] = ft_tolower(a[i]);
+		i++;
+	}
+	return (a);
+}
+
 void	run_cmd(t_mshel *shel, int cmd_index, char *cmd)
 {
 	int	exited;
 
 	exited = 0;
-	if (cmd[0] && (!strncmp(cmd, "echo", strlen("echo")) || \
-	!ft_strncmp(cmd, "/bin/echo", ft_strlen("/bin/echo"))))
+	if (cmd[0] && (!ft_strcmp(cmd, "echo") || \
+	!ft_strcmp(cmd, "/bin/echo") || !ft_strcmp(to_lower(cmd), "echo")))
 		ech_o(shel, cmd_index);
-	else if (cmd[0] && (!strncmp(cmd, "pwd", strlen("pwd")) || \
-	!ft_strncmp(cmd, "/bin/pwd", ft_strlen("/bin/pwd"))))
+	else if (cmd[0] && (!ft_strcmp(cmd, "pwd") || \
+	!ft_strcmp(cmd, "/bin/pwd") || !ft_strcmp(to_lower(cmd), "pwd")))
 		p_w_d();
-	else if (cmd[0] && (!strncmp(cmd, "cd", strlen("cd")) || \
-	!ft_strncmp(cmd, "/usr/bin/cd", ft_strlen("/usr/bin/cd"))))
+	else if (cmd[0] && (!ft_strcmp(cmd, "cd") || \
+	!ft_strcmp(cmd, "/usr/bin/cd")))
 		exited = c_d(shel, shel->cmd[cmd_index]->args[0]);
-	else if (cmd[0] && !strncmp(cmd, "exit", strlen("exit")))
+	else if (cmd[0] && !ft_strcmp(cmd, "exit"))
 		exited = exit_function(shel->cmd[cmd_index]->args, shel);
-	else if (cmd[0] && !ft_strncmp(cmd, "export", strlen("export")))
+	else if (cmd[0] && !ft_strcmp(cmd, "export"))
 		exited = ft_export(shel, cmd_index, -1);
-	else if (cmd[0] && !strncmp(cmd, "unset", strlen("unset")))
+	else if (cmd[0] && !ft_strcmp(cmd, "unset"))
 		exited = ft_unset(shel, cmd_index);
-	else if (cmd[0] && (!strncmp(cmd, "env", strlen("env")) || \
-	!ft_strncmp(cmd, "/usr/bin/env", ft_strlen("/usr/bin/env"))))
+	else if (cmd[0] && (!ft_strcmp(cmd, "env") || \
+	!ft_strcmp(cmd, "/usr/bin/env") || !ft_strcmp(to_lower(cmd), "env")))
 		print_env(shel, 0);
 	else
 		exited = run_non_builtin(shel, cmd_index, cmd);

@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/10 10:46:32 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/19 17:46:10 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/24 12:34:21 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,30 +58,51 @@ int	find_cmd(char **a, t_mshel *shel)
 
 void	alloc_redirect(t_mshel *shel, int i, char **a)
 {
+	int	j;
+
 	(void)a;
-	shel->cmd[i]->redirect.output = malloc(sizeof(char *) * 10);
-	shel->cmd[i]->redirect.out_file = malloc(sizeof(char *) * 10);
-	shel->cmd[i]->redirect.input_expanded = malloc(sizeof(char *) * 10);
+	shel->cmd[i]->red = 1;
+	shel->cmd[i]->redirect.output = malloc(sizeof(char *) * \
+	(1 + count_array(a, ">", ">>")));
+	shel->cmd[i]->redirect.out_file = malloc(sizeof(char *) * \
+	(1 + count_array(a, ">", ">>")));
+	shel->cmd[i]->redirect.input_expanded = malloc(sizeof(char *) * \
+	(1 + count_array(a, "<", "<<")));
 	shel->cmd[i]->redirect.output_expanded = malloc(sizeof(char *)
-			* 10);
-	shel->cmd[i]->redirect.input = malloc(sizeof(char *) * 10);
-	shel->cmd[i]->redirect.in_file = malloc(sizeof(char *) * 10);
+			* (1 + count_array(a, ">", ">>")));
+	shel->cmd[i]->redirect.input = malloc(sizeof(char *) * \
+	(1 + count_array(a, "<", "<<")));
+	shel->cmd[i]->redirect.in_file = malloc(sizeof(char *) * \
+	(1 + count_array(a, "<", "<<")));
 	shel->cmd[i]->redirect.heredoc.cmd = ft_calloc(1, 1);
 	shel->cmd[i]->redirect.heredoc.delemiter = malloc(sizeof(char *)
-			* 10);
+			* (1 + count_array(a, "<", "<<")));
+	j = 0;
+	while (j < count_array(a, "<", "<<"))
+		shel->cmd[i]->redirect.heredoc.delemiter[j++] = NULL;
 }
 
 void	transfer_herdoc_args(t_mshel *shel, int i, \
 int cmd_position, t_lexer *head)
 {
+	char	*tmp;
+	char	*tmp2;
+
 	if (shel->cmd[i]->cmd)
+	{
+		tmp2 = shel->cmd[i]->redirect.heredoc.cmd;
 		shel->cmd[i]->redirect.heredoc.cmd = \
 		ft_strdup(shel->cmd[i]->cmd);
+		free(tmp2);
+	}
 	if (head->str[cmd_position + 1] && \
 	ft_strcmp(head->str[cmd_position + 1], "<<"))
-		shel->cmd[i]->redirect.heredoc.cmd = ft_strjoin(\
-		shel->cmd[i]->redirect.heredoc.cmd, \
-		ft_strjoin(" ", head->str[cmd_position + 1]));
+	{
+		tmp = ft_strjoin(" ", head->str[cmd_position + 1]);
+		shel->cmd[i]->redirect.heredoc.cmd = smart_join(\
+		shel->cmd[i]->redirect.heredoc.cmd, tmp);
+		free(tmp);
+	}
 }
 
 void	transfer_cmd(t_lexer *lexer, t_mshel *shel, int i)

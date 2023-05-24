@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 21:25:10 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/22 11:01:01 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/24 11:42:38 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,14 +76,13 @@ int	check_input(t_mshel *shel, int cmd_index, int *i, char **a)
 	|| (holder && !ft_strcmp(holder, \
 	shel->cmd[cmd_index]->redirect.heredoc.delemiter[(*i)])))
 	{
+		free(*a);
 		(*a) = NULL;
 		(*i)++;
 	}
+	free(holder);
 	if ((*i) >= shel->cmd[cmd_index]->redirect.heredoc.heredoc_number)
-	{
-		free((*a));
 		return (0);
-	}
 	return (1);
 }
 
@@ -100,7 +99,10 @@ void	read_line(t_mshel *shel, int cmd_index, int *i, int (*pipes)[2])
 			break ;
 		}
 		if (!check_input(shel, cmd_index, i, &a))
+		{
+			free(a);
 			break ;
+		}
 		if (a)
 		{
 			if (ft_strchr(a, '$') && shel->exapnd_herdoc[(*i)] == 1)

@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/13 18:59:02 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/22 12:22:27 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/24 11:55:18 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ void	free_all(t_mshel *shel, int size)
 	{
 		free(shel->cmd[i]->cmd);
 		free_args(shel->cmd[i]->args);
-		if (shel->cmd[i]->redirect.in || shel->cmd[i]->redirect.out)
+		if (shel->cmd[i]->red)
 		{
 			free_args(shel->cmd[i]->redirect.input);
 			free_args(shel->cmd[i]->redirect.in_file);
@@ -43,12 +43,46 @@ void	free_all(t_mshel *shel, int size)
 			free_args(shel->cmd[i]->redirect.out_file);
 			free(shel->cmd[i]->redirect.heredoc.cmd);
 			free(shel->cmd[i]->redirect.output_expanded);
-			free(shel->cmd[i]->redirect.heredoc.delemiter);
+			free_array(shel->cmd[i]->redirect.heredoc.delemiter);
 		}
 		free(shel->cmd[i]);
 		i++;
 	}
 	free(shel->cmd);
+	free(shel->status);
+	free(shel->exapnd_herdoc);
+}
+
+int	count_array(char **a, char *c, char *d)
+{
+	int	i;
+	int	count;
+
+	i = 0;
+	count = 0;
+	while (a[i])
+	{
+		if (!ft_strcmp(a[i], c) || !ft_strcmp(a[i], d))
+			count++;
+		i++;
+	}
+	return (count + 1);
+}
+
+int	word_num(char *a, int c)
+{
+	int	i;
+	int	count;
+
+	i = 0;
+	count = 0;
+	while (a[i])
+	{
+		if (a[i] == c)
+			count++;
+		i++;
+	}
+	return (count + 1);
 }
 
 void	free_lexer(t_lexer *lexer)

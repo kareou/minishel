@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/12 13:05:10 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/22 12:32:03 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/23 12:11:59 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,8 @@ void	lexer(char *input, t_mshel *shel)
 	index.j = 0;
 	lst = NULL;
 	newnode = NULL;
+	shel->exapnd_herdoc = malloc(sizeof(int) * word_num(input, '<'));
+	shel->status = ft_calloc(ft_strlen(input), sizeof(int));
 	string = better_parsing(input, shel, &index);
 	free(input);
 	lexer_part_separate(string, shel, newnode, lst);

@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/27 22:48:51 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/19 14:47:32 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/24 12:32:32 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,10 @@ void	check_herdoc(t_mshel *mshel, int (*pipes)[2])
 			if (id == 0)
 				execute_cmd(mshel, pipes, i, 1);
 			else
+			{
+				mshel->id = id;
 				wait(NULL);
+			}
 		}
 		i++;
 	}
@@ -56,13 +59,16 @@ void	create_proc(t_mshel *mshel, int (*pipes)[2], int *pid)
 	{
 		if (mshel->cmd[i]->redirect.heredoc.heredoc_number > 0)
 			i++;
-		id = fork();
-		if (id == -1)
-			printf("minishell : %s\n", strerror(errno));
-		if (id == 0)
-			execute_cmd(mshel, pipes, i, 1);
 		else
-			pid[i] = id;
+		{
+			id = fork();
+			if (id == -1)
+				printf("minishell : %s\n", strerror(errno));
+			if (id == 0)
+				execute_cmd(mshel, pipes, i, 1);
+			else
+				pid[i] = id;
+		}
 		i++;
 	}
 }

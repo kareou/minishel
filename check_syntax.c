@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 13:53:15 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/20 19:43:34 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/24 16:22:27 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,10 +35,32 @@ int	print_error(int cho)
 	return (0);
 }
 
+int	check_er(char *a, int i, int c)
+{
+	int	count;
+
+	count = 0;
+	while (a[i] && a[i] == c)
+	{
+		count++;
+		i++;
+	}
+	while (a[i] && a[i] == ' ')
+	{
+		i++;
+	}
+	if (count > 2 || a[i] == '>' || a[i] == '<' || a[i] == '|')
+		return (0);
+	return (1);
+}
+
 int	check_syntax2(char *a, int i, int *prev_symbol)
 {
 	if (i == 0 || a[i + 1] == '\0' || a[i - 1] == '|')
 	{
+		if (i == 0 && (a[i] == '<' || a[i] == '>'))
+			if (!check_er(a, i, a[i]))
+				return (0);
 		if (i == 0 && a[i] != '<' && a[i] != '>')
 			return (0);
 		else if (!a[i + 1])
@@ -50,6 +72,11 @@ int	check_syntax2(char *a, int i, int *prev_symbol)
 		return (0);
 	else if (a[i] == '|' && !find_file(i, a))
 		return (0);
+	else if ((a[i] == '>' || a[i] == '<'))
+	{
+		if (!check_er(a, i, a[i]))
+			return (0);
+	}
 	else
 		*prev_symbol = 1;
 	return (1);

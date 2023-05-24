@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/12 18:48:02 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/22 12:49:53 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/23 16:24:44 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,10 @@ void	error_to_print(int error, char *file)
 		free(tp);
 	}
 	else
-		msg = strerror(error);
+		msg = ft_strdup(strerror(error));
 	tmp = ft_strjoin("minishell: ", msg);
 	free(file);
+	free(msg);
 	print_errors(tmp);
 	free(tmp);
 }

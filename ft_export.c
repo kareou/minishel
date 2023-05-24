@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/13 20:24:39 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/22 16:28:03 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/24 12:00:28 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ int	ft_export(t_mshel *shel, int cmd_index, int i)
 			if (ft_strchr(shel->cmd[cmd_index]->args[i], '=')
 				&& (ft_strchr(shel->cmd[cmd_index]->args[i], '=') + 1))
 			{
-				if (!add_env(shel, shel->cmd[cmd_index]->args[i]))
+				if (!add_env(shel, shel->cmd[cmd_index]->args[i], -1))
 					state = 1;
 				if (!add_x_env(shel, shel->cmd[cmd_index]->args[i]))
 					state = 1;

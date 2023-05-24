@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 11:29:14 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/22 16:44:42 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/24 16:53:05 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,7 @@ typedef struct s_cmd
 	t_redr			redirect;
 	int				error;
 	char			*error_file;
+	int				red;
 }					t_cmd;
 
 typedef struct s_mshel
@@ -73,7 +74,9 @@ typedef struct s_mshel
 	int				*status;
 	int				stat;
 	int				herdoc_number;
+	int				break_heardoc;
 	char			*store_input;
+	int				id;
 }					t_mshel;
 
 //************* lexer **************
@@ -174,7 +177,7 @@ int					check_space_place(char *a);
 char				*ft_strtr(char *s1, char *set);
 int					theres_is_red(char *a);
 void				handel_double_quotes(t_mshel *shel, char *a,
-						t_indexs *index);
+						t_indexs *index, int cp);
 void				handel_no_quotes_expand(char *tempo,
 						t_indexs *index, char a, t_mshel *shel);
 void				hendel_no_quotes_spand_j(t_mshel *shel, char *tempo,
@@ -187,7 +190,7 @@ void				free_lexer(t_lexer *lexer);
 void				free_all(t_mshel *shel, int size);
 int					exit_function(char **a, t_mshel *shel);
 int					add_x_env(t_mshel *shel, char *variable);
-int					add_env(t_mshel *shel, char *variable);
+int					add_env(t_mshel *shel, char *variable, int i);
 
 // check_syntax.c
 int					check_syntax(char *a, int i, int quotes);
@@ -222,7 +225,17 @@ void				free_array(char **a);
 int					check_valid(char *a, int declare, \
 t_mshel *shel);
 void				free_array(char **string);
+char				*smart_join(char *a, char *b);
 int					reset_redirection(t_mshel *shel, int cmd_index, int status);
 void				exiting(t_mshel *shel, int exit_status, int free_all_flag);
+int					word_num(char *a, int c);
+int					count_array(char **a, char *c, char *d);
+void				sigint_handler_c(int sig);
+void				run_heredoc(t_mshel *shel, int status, int cmd_index);
+char				*fix_pipe(char *a);
+void				set_null(t_mshel *shel, t_indexs *index, t_lexer *lexer, \
+int action);
+void				expande_dollare_s(int i, char **value, char **tmp, \
+t_mshel *shel);
 
 #endif

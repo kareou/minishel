@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/28 13:25:37 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/22 15:45:10 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/23 12:42:55 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ char	**better_parsing(char *a, t_mshel *shel, t_indexs *index)
 			if (a[index->i] == 39)
 				handel_sing_quote(shel, a, index);
 			else if (a[index->i] == 34)
-				handel_double_quotes(shel, a, index);
+				handel_double_quotes(shel, a, index, index->i);
 		}
 		if (a[index->i] == 0)
 			break ;

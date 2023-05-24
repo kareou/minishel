@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/04 15:26:40 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/22 13:53:25 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/24 16:39:07 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,9 +28,23 @@ int	in_set(int c, char const *set)
 	return (0);
 }
 
-char	*ft_strtrim(char const *s1, char const *set)
+char	*copy(char const *s1, size_t first_p, size_t last_p)
 {
 	char	*new;
+	int		i;
+
+	i = 0;
+	new = malloc(sizeof(char) * (last_p - first_p + 1));
+	if (new == NULL)
+		return (NULL);
+	while (last_p > first_p)
+		new[i++] = s1[first_p++];
+	new[i] = '\0';
+	return (new);
+}
+
+char	*ft_strtrim(char const *s1, char const *set)
+{
 	size_t	first_p;
 	size_t	last_p;
 	size_t	i;
@@ -54,11 +68,5 @@ char	*ft_strtrim(char const *s1, char const *set)
 			break ;
 		last_p--;
 	}
-	new = malloc(sizeof(char) * (last_p - first_p + 1));
-	if (new == NULL)
-		return (NULL);
-	while (last_p > first_p)
-		new[i++] = s1[first_p++];
-	new[i] = '\0';
-	return (new);
+	return (copy(s1, first_p, last_p));
 }

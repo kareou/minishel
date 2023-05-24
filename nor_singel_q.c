@@ -6,36 +6,38 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/20 22:17:41 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/22 16:48:29 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/24 16:20:49 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	join_sing_q(t_mshel *shel, t_indexs *index, char *a, int checkpoint)
+void	join_sing_q(t_mshel *shel, t_indexs *idx, char *a, int checkpoint)
 {
 	char	*store;
+	char	*point;
+	char	*tmp;
 
-	store = substr(a, checkpoint + 1, index->i - checkpoint - 1);
-	if (!store[0] && index->new[index->j - 1][ft_strlen(index->new[index->j
-				- 1]) - 1] == ' ' && !a[index->i + 1])
+	store = substr(a, checkpoint + 1, idx->i - checkpoint - 1);
+	point = ft_strtr(idx->new[idx->j - 1], " ");
+	if (!store[0] && idx->new[idx->j - 1][ft_strlen(idx->new[idx->j
+				- 1]) - 1] == ' ' && !a[idx->i + 1])
 	{
 		shel->status[shel->stat - 1] = 0;
-		index->new[index->j - 1] = ft_strtrim(index->new[index->j - 1],
-				" ");
+		tmp = idx->new[idx->j - 1];
+		idx->new[idx->j - 1] = ft_strtrim(idx->new[idx->j - 1], " ");
+		free(tmp);
 	}
 	else
 	{
-		if (ft_strchr(index->new[index->j - 1], ' ')
-			&& check_space_place(index->new[index->j - 1]) == 1)
-			index->new[index->j
-				- 1] = ft_strjoin(ft_strtr(index->new[index->j - 1], " "),
-					store);
+		if (ft_strchr(idx->new[idx->j - 1], ' ')
+			&& check_space_place(idx->new[idx->j - 1]) == 1)
+			idx->new[idx->j - 1] = ft_strjoin(point, store);
 		else
-			index->new[index->j - 1] = ft_strjoin(index->new[index->j - 1],
+			idx->new[idx->j - 1] = smart_join(idx->new[idx->j - 1],
 					store);
 	}
-	free(store);
+	return (free(store), free(point));
 }
 
 void	no_join_sing(t_mshel *shel, t_indexs *index, char *a, int checkpoint)

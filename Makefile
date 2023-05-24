@@ -5,7 +5,7 @@ FILE = minishell.c norminnette_parsing.c redirect.c utils.c ft_export.c heredoc.
 		check_syntax.c ./lexer/lexer_part.c ./lexer/node_lk_list.c ./parser/check_cmd_red_flag.c  ./parser/compare_cmd_red_dollar.c ./parser/check_expanding.c\
 		memory_leaks.c parsing_d_quote.c exit_cmd.c ft_strcmp.c pipe_utils.c copy_to_array_utils.c\
 		start_copy.c utils_2.c pwd.c heredoc_utils.c run_cmd_utils.c export_env.c export_x_env.c\
-		nor_utils.c nor_no_q.c nor_singel_q.c
+		nor_utils.c nor_no_q.c nor_singel_q.c helping_func.c ./parser/expanding.c
 CC =  cc
 file = ./libft/libft.a
 CFLAGS =  -Wall -Wextra -Werror #-fsanitize=address -g

@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/20 21:50:29 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/20 22:06:38 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/23 14:46:10 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,7 @@ void	joining_w_prev(t_mshel *shel, char *tempo, t_indexs *index, char a)
 	}
 	else
 		join_no_s(shel, index, tempo, t);
+	free_array(t);
 }
 
 void	hendel_no_quotes_spand_j(t_mshel *shel, char *tempo, t_indexs *index,
