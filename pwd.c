@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 20:08:26 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/23 11:39:31 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/25 22:53:33 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,18 @@ int	test(char *a, char *thispath, t_mshel *shel, int i)
 	return (0);
 }
 
+void	handel_telda(t_mshel *shel, char **a, int *i)
+{
+	char	*tmp;
+
+	tmp = ft_strjoin("/Users/", ft_getenv(shel, "USER"));
+	if ((*a)[1])
+		(*a) = smart_join(tmp, &(*a)[1]);
+	else
+		(*a) = tmp;
+	(*i) = 1;
+}
+
 int	c_d(t_mshel *shel, char *a)
 {
 	char	*thispath;
@@ -63,10 +75,7 @@ int	c_d(t_mshel *shel, char *a)
 		}
 	}
 	if (!ft_strncmp(a, "~", 1))
-	{
-		a = ft_strjoin("/Users/", ft_getenv(shel, "USER"));
-		i = 1;
-	}
+		handel_telda(shel, &a, &i);
 	thispath = ft_getenv(shel, "PWD");
 	if (test(a, thispath, shel, i))
 		return (1);

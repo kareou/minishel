@@ -6,14 +6,14 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/04 12:54:41 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/25 20:14:37 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/25 22:30:54 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 #include "stdio.h"
 
-int	len(char const *s)
+int	len_t(char const *s)
 {
 	if (!s || !s[0])
 		return (1);
@@ -32,7 +32,7 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	j = 0;
 	if (s1 == NULL && s2 == NULL)
 		return (NULL);
-	len_2 = len(s2);
+	len_2 = len_t(s2);
 	ptr = malloc(sizeof(char) * (ft_strlen(s1) + len_2 + 1));
 	if (!ptr)
 		return (NULL);
