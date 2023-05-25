@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/20 21:50:29 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/23 14:46:10 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/25 22:15:28 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,12 +49,33 @@ void	check_if_heredoc_exp(t_indexs *index, t_mshel *shel)
 	}
 }
 
+char	*fix_tab(char *a)
+{
+	int		i;
+	char	*tempo;
+
+	i = 0;
+	tempo = ft_calloc(ft_strlen(a) + 1, 1);
+	while (a[i])
+	{
+		if (a[i] == '\t')
+			tempo[i] = ' ';
+		else
+			tempo[i] = a[i];
+		i++;
+	}
+	return (tempo);
+}
+
 void	joining_w_prev(t_mshel *shel, char *tempo, t_indexs *index, char a)
 {
 	char	**t;
+	char	*n;
 
 	check_if_heredoc_exp(index, shel);
-	t = ft_split(tempo, ' ');
+	n = fix_tab(tempo);
+	t = ft_split(n, ' ');
+	free(n);
 	if (array_lenth(t) == 1)
 	{
 		if (a == ' ')
@@ -76,7 +97,7 @@ void	joining_w_prev(t_mshel *shel, char *tempo, t_indexs *index, char a)
 void	hendel_no_quotes_spand_j(t_mshel *shel, char *tempo, t_indexs *index,
 		char a)
 {
-	if (tempo && ft_strchr(tempo, ' '))
+	if (tempo && (ft_strchr(tempo, ' ') || ft_strchr(tempo, '\t')))
 		joining_w_prev(shel, tempo, index, a);
 	else if (tempo)
 	{

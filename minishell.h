@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 11:29:14 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/24 16:53:05 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/25 22:16:29 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -237,5 +237,6 @@ void				set_null(t_mshel *shel, t_indexs *index, t_lexer *lexer, \
 int action);
 void				expande_dollare_s(int i, char **value, char **tmp, \
 t_mshel *shel);
+char				*fix_path(char *a, int i, int j);
 
 #endif

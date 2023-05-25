@@ -6,11 +6,38 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/24 12:35:37 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/24 12:41:25 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/25 22:16:14 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+char	*fix_path(char *a, int i, int j)
+{
+	char	*new_path;
+
+	new_path = malloc(sizeof(char) * (ft_strlen(a) * 2));
+	if (a[i] == ':')
+	{
+		new_path[j++] = '.';
+		new_path[j++] = ':';
+		i += 2;
+	}
+	while (a[i])
+	{
+		if (a[i] == ':' && a[i + 1] == ':')
+		{
+			new_path[j++] = ':';
+			new_path[j++] = '.';
+			new_path[j++] = ':';
+			i += 3;
+		}
+		else
+			new_path[j++] = a[i];
+		i++;
+	}
+	return (new_path);
+}
 
 void	run_heredoc(t_mshel *shel, int status, int cmd_index)
 {

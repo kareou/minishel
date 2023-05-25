@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/15 11:28:46 by asekkak           #+#    #+#             */
-/*   Updated: 2023/05/24 16:13:35 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/25 20:13:27 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,10 @@ t_mshel	g_ms;
 void	sigint_handler_c(int sig)
 {
 	(void)sig;
-	printf("\n");
-	rl_on_new_line();
 	if (g_ms.id != 0)
 		kill(g_ms.id, SIGKILL);
+	printf("\n");
+	rl_on_new_line();
 	// rl_replace_line("", 0);
 	g_ms.exit_status = 1;
 	rl_redisplay();

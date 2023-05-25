@@ -6,7 +6,7 @@
 /*   By: mkhairou <mkhairou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 13:53:15 by mkhairou          #+#    #+#             */
-/*   Updated: 2023/05/24 16:22:27 by mkhairou         ###   ########.fr       */
+/*   Updated: 2023/05/25 10:52:28 by mkhairou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ int	check_er(char *a, int i, int c)
 		count++;
 		i++;
 	}
-	while (a[i] && a[i] == ' ')
+	while (a[i] && (a[i] == ' ' || a[i] == 9))
 	{
 		i++;
 	}
